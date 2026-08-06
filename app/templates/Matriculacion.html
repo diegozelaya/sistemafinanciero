@@ -1,0 +1,144 @@
+{%extends 'layout.html'%}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container mt-4">
+  <div class="card shadow-sm border-4">
+    <div class="card-body py-2 px-3">
+      <div class="text-center">
+        <h5>MATRICULACIÓN DE ALUMNOS</h5>
+      </div>
+      <form id="productForm" action="/registrar_matricula" method="POST">
+
+        <!-- Fila Fecha -->
+        <div class="row mb-2">
+          <div class="col-12 col-md-3">
+            <label for="fecha" class="form-label mb-1 small">Fecha:</label>
+            <input type="date" class="form-control form-control-sm" id="fecha" name="fecha">
+          </div>
+        </div>
+
+        <!-- Fila Asociado, Año Lectivo y Grado -->
+        <div class="row g-2 mb-2">
+          <div class="col-12 col-md-3">
+            <label for="asociado" class="form-label mb-1 small">Asociado:</label>
+            <select class="form-select form-select-sm" id="asociado" name="asociado">
+              <option value="">Seleccione un asociado</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label for="lectivo" class="form-label mb-1 small">Año Lectivo:</label>
+            <select class="form-select form-select-sm" id="lectivo" name="lectivo" value="2025">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+
+            </select>
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label for="grado" class="form-label mb-1 small">Grado:</label>
+            <select class="form-select form-select-sm" id="grado" name="grado">
+              <option value="10">Jardín</option>
+              <option value="11">Pre Escolar</option>
+              <option value="1">Primero</option>
+              <option value="2">Segundo</option>
+              <option value="3">Tercero</option>
+              <option value="4">Cuarto</option>
+              <option value="5">Quinto</option>
+              <option value="6">Sexto</option>
+              <option value="7">Séptimo</option>
+              <option value="8">Octavo</option>
+              <option value="9">Noveno</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila Cantidad de Cuotas e Importe Total -->
+        <div class="row g-2">
+          <div class="col-12 col-md-3">
+            <label for="cantcuotas" class="form-label mb-1 small">Cantidad de Cuotas:</label>
+            <input type="number" class="form-control form-control-sm" id="cantcuotas" name="cantcuotas">
+          </div>
+
+          <div class="col-12 col-md-3">
+            <label for="importetotal" class="form-label mb-1 small">Importe Total:</label>
+            <input type="text" class="form-control form-control-sm" id="importetotal" name="importetotal">
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-auto">
+            <button type="button" id="generarDetalles" class="btn btn-secondary btn-sm w-80">
+              Generar Detalle de Pagos</button>
+          </div>
+        </div>
+
+        <br>
+
+
+        <table id="detallesPagos" border="1"
+          class="table table-bordered table-striped table-hover table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Nro de Cuota</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Fecha de Vencimiento</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="contenedorBotonGuardar" class="row mt-2"></div>
+
+
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal Bootstrap par aconsultar si se firmo el contrato -->
+  <div class="modal fade" id="contratoModal" tabindex="-1" aria-labelledby="contratoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contratoModalLabel">Confirmación de contrato</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Se firmó el contrato?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="contratoNo" data-bs-dismiss="modal">No</button>
+          <button type="button" class="btn btn-primary" id="contratoSi" data-bs-dismiss="modal">Sí</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const fecha = document.getElementById('fecha');
+      setTimeout(() => {
+        if (fecha && !fecha.value) {
+          const today = new Date().toISOString().split('T')[0];
+          fecha.value = today;
+        }
+      }, 100);
+    });
+  </script>
+
+</div>
+
+</body>
+
+</html>
+
+{%endblock%}

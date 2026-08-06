@@ -1,0 +1,153 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+{%block body%}
+
+<div class="container mt-4">
+    <h2> Alumnos</h2>
+    <div class="card p-2 shadow-sm" style="max-width: 700px;">
+        <div class="card-body p-2">
+            <div class="d-flex gap-2 align-items-center">
+                <button class="btn btn-success btn-sm px-3 py-1" data-bs-toggle="modal" data-bs-target="#addModalaso"
+                    style="font-size: 0.8rem; min-width: 130px;" id="btnaddaso">Agregar
+                    Usuario</button>
+                <input type="text" id="searchBoxaso" class="form-control"
+                    placeholder="Buscar por nombre, apellido o documento">
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <table class="table table-bordered table-striped table-hover table-sm align-middle" id="table_alumnos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>Nombre y Apellido</th>
+                <th>F. de Nac.</th>
+                <th>Responsable Pagador</th>
+                <th>Encargado 1</th>
+                <th>Telefono 1</th>
+                <th>Encargado 2</th>
+                <th>Telefono 2</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="userTableaso">
+            {% for user in users %}
+            <tr>
+                <td>{{ user[0] }}</td>
+                <td>{{ user[1] }}</td>
+                <td>{{ user[2] }}</td>
+                <td>{{ user[3] }}</td>
+                <td>{{ user[4] }}</td>
+                <td>{{ user[5] }}</td>
+                <td>{{ user[6] }}</td>
+                <td>{{ user[7] }}</td>
+                <td>{{ user[8] }}</td>
+                <td>{{ user[9] }}</td>
+                <td>{% if user[10] == 1 %}Activo{% else %}Inactivo{% endif %}</td>
+                <td class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary btn-sm w-auto px-2 editBtnaso"
+                        style="background-color: #343a40; color: white;" data-id="{{ user[0] }}">Editar</button>
+                    <button type="button" class="btn btn-secondary btn-sm w-auto px-2 toggleStatusBtnaso"
+                        style="font-size: 0.75rem; min-width: 110px;" data-id="{{ user[0] }}"
+                        data-status="{{ user[10] }}">
+                        {% if user[10] == 1 %} Dar de baja {% else %} Activar cliente {% endif %}
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Modal Agregar -->
+<div class="modal fade" id="addModalaso" tabindex="-1">
+    <div class="modal-dialog modal-lg"> <!-- 🔹 Modal más ancho -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar o Editar Alumno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="cedulaaso" class="form-label">Nro de CI</label>
+                        <input type="text" id="cedulaaso" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="nombreaso" class="form-label">Nombre y Apellido</label>
+                        <input type="text" id="nombreaso" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label for="clientebusq" class="form-label">Cliente</label>
+                        <select id="clientebusq" class="form-control">
+                            <option value="">Seleccione un cliente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <input type="hidden" id="edit_idaso">
+
+                <div class="row mt-2 align-items-center">
+                    <div class="col-md-4">
+                        <label for="fechanac" class="form-label">Fecha de Nac.</label>
+                        <input type="date" id="fechanac" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="sexoaso" class="form-label">Sexo</label>
+                        <select id="sexoaso" class="form-control">
+                            <option value="">Sexo</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label for="responsable1" class="form-label">Nombre Responsable 1</label>
+                        <input type="text" id="responsable1" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="responsable1cel" class="form-label">Celular Responsable 1</label>
+                        <input type="text" id="responsable1cel" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label for="responsable2" class="form-label">Nombre Responsable 2</label>
+                        <input type="text" id="responsable2" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="responsable2cel" class="form-label">Celular Responsable 2</label>
+                        <input type="text" id="responsable2cel" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="saveUseraso">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/crudaso.js') }}?v={{ timestamp }}"></script>
+
+</body>
+
+</html>
+
+{%endblock%}

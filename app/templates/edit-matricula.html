@@ -1,0 +1,182 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container">
+  <h3> Búsqueda de Matrículas</h3>
+  <div class="card p-2 mb-2">
+    <form id="filtromatriculas" class="row g-2">
+
+
+      <div class="col-md-3">
+        <label for="alumno" class="form-label">Alumno</label>
+        <select class="form-select form-select-sm" id="alumno" name="alumno">
+          <option value="">Seleccione o busque un alumno</option>
+        </select>
+      </div>
+
+
+
+      <div class="col-12 text-end mt-2">
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+        <button type="button" class="btn btn-outline-danger ms-2" id="btnLimpiar">Limpiar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<br>
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+
+      <th>Fecha</th>
+      <th>Alumno</th>
+      <th>Grado</th>
+      <th>Año Lectivo</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablamatricula">
+    <!-- Aquí se insertan las filas dinámicamente -->
+  </tbody>
+</table>
+<div class="modal fade" id="modalEditarFactura" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Factura</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Campos para editar -->
+        <input type="text" id="editCliente" class="form-control mb-2" placeholder="Cliente">
+        <input type="number" id="editMonto" class="form-control mb-2" placeholder="Monto">
+        <!-- Otros campos según necesidad -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_editmatricula" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Matrícula</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="d-flex justify-content-center mt-1">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="editContrato">
+          <label class="form-check-label ms-2" for="editContrato">Contrato firmado</label>
+        </div>
+      </div>
+
+
+      <div class="modal-body">
+
+        <!-- Año lectivo -->
+        <label for="editAnoLectivo" class="form-label">Año Lectivo</label>
+        <select id="editAnoLectivo" class="form-select mb-2">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+
+        <!-- Curso -->
+        <label for="editCurso" class="form-label">Curso</label>
+        <select id="editCurso" class="form-select mb-2">
+          <!-- Opciones se insertan dinámicamente -->
+        </select>
+
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Nro. de Cuota</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Débito</th>
+              <th>Crédito</th>
+
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleMatriculaedit">
+            <!-- Se insertan los detalles dinámicamente -->
+          </tbody>
+        </table>
+
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" id="guardarCambiosMatricula">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal para ver el detale "VER"-->
+<div class="modal fade" id="modalVerDetalle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de la Matricula</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group mb-3">
+          <li class="list-group-item"><strong>Alumno:</strong> <span id="infoAlumno"></span></li>
+          <li class="list-group-item"><strong>Año Lectivo:</strong> <span id="infoAnoLectivo"></span></li>
+          <li class="list-group-item"><strong>Curso:</strong> <span id="infoCurso"></span></li>
+          <li class="list-group-item"><strong>Contrato:</strong><span id="infoContrato"></span></li>
+        </ul>
+
+
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Nro. de Cuota</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Débito</th>
+              <th>Crédito</th>
+              <th>Saldo a cobrar</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleMatricula">
+            <!-- Se insertan los detalles dinámicamente -->
+          </tbody>
+        </table>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Tu script personalizado -->
+
+<!-- Tu módulo -->
+<script type="module" src="{{ url_for('static', filename='js/editmatricula.js') }}"></script>
+
+
+
+{% endblock %}

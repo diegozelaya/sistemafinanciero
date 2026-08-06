@@ -1,0 +1,179 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container">
+  <h3> Búsqueda de facturas</h3>
+  <div class="card p-3 mb-3">
+    <form id="filtroFacturas" class="row g-2">
+      <div class="col-md-3">
+        <label for="fechaInicio" class="form-label">Desde</label>
+        <input type="date" id="fechaInicio" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label for="fechaFin" class="form-label">Hasta</label>
+        <input type="date" id="fechaFin" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label for="cliente" class="form-label">Cliente</label>
+        <select class="form-select form-select-sm" id="cliente" name="cliente">
+          <option value="">Seleccione o busque un cliente</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="alumno" class="form-label">Alumno</label>
+        <select class="form-select form-select-sm" id="alumno" name="alumno">
+          <option value="">Seleccione o busque un alumno</option>
+        </select>
+      </div>
+
+
+      <div class="col-md-3">
+        <label for="nroFactura" class="form-label">Nro. Factura</label>
+        <input type="text" id="nroFactura" class="form-control">
+      </div>
+      <div class="col-12 text-end mt-2">
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+        <button type="button" class="btn btn-outline-danger ms-2" id="btnLimpiar">Limpiar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<br>
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>Nro. Factura</th>
+      <th>Fecha</th>
+      <th>Cliente</th>
+      <th>Monto</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablaFacturas">
+    <!-- Aquí se insertan las filas dinámicamente -->
+  </tbody>
+</table>
+
+
+<div class="modal fade" id="modal_edit" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Factura</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="editFecha" class="form-label">Fecha</label>
+        <input type="date" id="editFecha" class="form-control mb-2">
+
+        <label for="editNroFactura" class="form-label">Nro. Factura</label>
+        <input type="text" id="editNroFactura" class="form-control mb-2">
+
+        <label class="form-label">Tipos de Pago</label>
+        <div class="container">
+          <div class="row mb-2">
+            <label for="editPagoEfectivo" class="col-4 col-form-label">Efectivo:</label>
+            <div class="col-8">
+              <input type="number" id="editPagoEfectivo" class="form-control form-control-sm"
+                placeholder="Pago en efectivo">
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <label for="editPagoTransferencia" class="col-4 col-form-label">Transferencia:</label>
+            <div class="col-8">
+              <input type="number" id="editPagoTransferencia" class="form-control form-control-sm"
+                placeholder="Pago por transferencia">
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <label for="editPagoCheque" class="col-4 col-form-label">Cheque:</label>
+            <div class="col-8">
+              <input type="number" id="editPagoCheque" class="form-control form-control-sm"
+                placeholder="Pago por cheque">
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <label for="editPagoDescuento" class="col-4 col-form-label">Desc. de sueldo:</label>
+            <div class="col-8">
+              <input type="number" id="editPagoDescuento" class="form-control form-control-sm"
+                placeholder="Descuento de sueldo">
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal para ver el detale "VER"-->
+<div class="modal fade" id="modalVerDetalle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de la Venta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Tabla de productos -->
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Descripción</th>
+              <th>Precio Unitario</th>
+              <th>Cantidad</th>
+              <th>Descuento</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleVenta">
+            <!-- Se insertan los detalles dinámicamente -->
+          </tbody>
+        </table>
+
+        <!-- Total general -->
+        <div class="text-end mb-3">
+          <strong>Total de la venta:</strong> <span id="totalVenta" class="ms-2"></span>
+        </div>
+
+        <!-- Formas de cobro -->
+        <h6>Formas de Cobro</h6>
+        <ul id="listaCobros" class="list-group">
+          <!-- Se insertan dinámicamente -->
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Tu script personalizado -->
+
+<!-- Tu módulo -->
+<script type="module" src="{{ url_for('static', filename='js/editfactura.js') }}"></script>
+
+<script type="module" src="{{ url_for('static', filename='js/factura-utils.js') }}"></script>
+
+{% endblock %}

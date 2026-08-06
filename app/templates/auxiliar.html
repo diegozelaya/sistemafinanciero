@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario con Tabla y Select2</title>
+
+    <!-- Incluir CSS de Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Incluir jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Incluir JavaScript de Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+</head>
+<body>
+    <form id="productForm">
+        <!-- Campo de nombre con Select2 -->
+        <label for="nombre">Nombre del producto:</label>
+        <select id="nombre" name="nombre" style="width: 200px;" required></select>
+
+        <!-- Campo IVA -->
+        <label for="iva">IVA:</label>
+        <select id="iva" name="iva" style="width: 200px;" required>
+            <option value="0">0%</option>
+            <option value="5">5%</option>
+            <option value="10">10%</option>
+        </select>
+
+        <!-- Campo Descuento -->
+        <label for="descuento">Descuento:</label>
+        <input type="number" id="descuento" name="descuento" value="0" min="0" />
+
+        <button type="submit">Agregar Producto</button>
+    </form>
+
+    <!-- Tabla de productos -->
+    <table id="productTable" border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Descuento</th>
+                <th>Subtotal con Descuento</th>
+                <th>IVA</th>
+                <th>Monto IVA</th>
+                <th>Total con IVA</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Mostrar el total general -->
+    <p>Total: <span id="totalPrice">0</span></p>
+
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2 para el campo de nombre
+            $('#nombre').select2({
+                placeholder: 'Selecciona un producto',
+                ajax: {
+                    url: '/get_productos',  // URL para obtener los productos
+                    dataType: 'json',
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.id,  // El id del producto
+                                    text: item.nombre  // El nombre del producto
+                                };
+                            })
+                        };
+                    }
+                }
+            });
+
+            // Función para cargar productos y actualizar la tabla
+            function cargarProductos() {
+                $.ajax({
+                    url: '/get_products',
+                    method: 'GET',
+                    success: function(productos) {
+                        $('#productTable tbody').empty(); // Limpiar la tabla antes de llenarla
+
+                        var totalPrice = 0;
+
+                        $.each(productos, function(index, producto) {
+                            // Convertir los valores a números y asegurarse de que no estén vacíos o indefinidos
+                            var precio = parseFloat(producto.precio) || 0;
+                            var cantidad = parseInt(producto.cantidad) || 0;
+                            var descuento = parseFloat(producto.descuento) || 0;
+                            var ivaPorcentaje = parseInt(producto.iva) || 0;
+
+                            // Calcular el subtotal (precio * cantidad)
+                            var subtotal = precio * cantidad;
+
+                            // Aplicar el descuento
+                            var subtotalConDescuento = subtotal - descuento;
+
+                            // Calcular el monto del IVA
+                            var montoIVA = subtotalConDescuento * (ivaPorcentaje / 100);
+
+                            // Calcular el total con IVA
+                            var totalConIVA = subtotalConDescuento + montoIVA;
+
+                            // Acumular el precio total sumando los totales con IVA de cada producto
+                            totalPrice += totalConIVA;
+
+                            // Formatear los números con separadores de miles usando toLocaleString()
+                            var row = '<tr>' +
+                                        '<td>' + producto.nombre + '</td>' +
+                                        '<td>' + precio.toLocaleString() + '</td>' +
+                                        '<td>' + cantidad.toLocaleString() + '</td>' +
+                                        '<td>' + subtotal.toLocaleString() + '</td>' +  // Subtotal sin descuento
+                                        '<td>' + descuento.toLocaleString() + '</td>' +  // Descuento
+                                        '<td>' + subtotalConDescuento.toLocaleString() + '</td>' +  // Subtotal con descuento
+                                        '<td>' + ivaPorcentaje + '%</td>' +  // IVA porcentaje
+                                        '<td>' + montoIVA.toLocaleString() + '</td>' +  // Monto del IVA
+                                        '<td>' + totalConIVA.toLocaleString() + '</td>' +  // Total con IVA
+                                        '<td><button class="delete-btn" data-nombre="' + producto.nombre + '">Borrar</button></td>' +
+                                      '</tr>';
+                            $('#productTable tbody').append(row);
+                        });
+
+                        // Actualizar el total general en el campo correspondiente
+                        $('#totalPrice').text(totalPrice.toLocaleString());
+
+                        // Asociar evento de eliminación a los botones
+                        $('.delete-btn').on('click', function() {
+                            var nombreProducto = $(this).data('nombre');
+                            eliminarProducto(nombreProducto);
+                        });
+                    },
+                    error: function() {
+                        alert('Ocurrió un error al cargar los productos.');
+                    }
+                });
+            }
+
+            // Función para eliminar un producto
+            function eliminarProducto(nombreProducto) {
+                $.ajax({
+                    url: '/delete_product',
+                    method: 'POST',
+                    data: { nombre: nombreProducto },
+                    success: function(response) {
+                        // Mostrar un mensaje de éxito
+                        $('#responseMessage').html('<p>' + response.message + '</p>');
+
+                        // Recargar la lista de productos en la tabla
+                        cargarProductos();
+                    },
+                    error: function() {
+                        $('#responseMessage').html('<p>Ocurrió un error al eliminar el producto.</p>');
+                    }
+                });
+            }
+
+            // Cargar productos inicialmente al cargar la página
+            cargarProductos();
+
+            // Manejar el evento de envío del formulario
+            $('#productForm').on('submit', function(e) {
+                e.preventDefault();
+                // Enviar los datos del formulario al servidor (usualmente con un POST)
+                // Después de la operación, puedes recargar la tabla llamando a cargarProductos();
+            });
+        });
+    </script>
+</body>
+</html>

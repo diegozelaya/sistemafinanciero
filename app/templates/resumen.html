@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+{% block body %}
+<h1 style="text-align:center; margin-top:20px; font-size:2em; font-weight:bold;">
+  LISTADO DE VENTAS PARA CONTABILIDAD
+</h1>
+
+<form id="form-fechas" method="POST" action="/generar_planilla_r" class="form-fechas"
+  style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:30px;">
+
+  <label for="fecha_desde">Fecha desde:</label>
+  <input type="date" id="fecha_desde" name="fecha_desde" required value="{{ fecha_desde or '' }}">
+
+  <label for="fecha_hasta">Fecha hasta:</label>
+  <input type="date" id="fecha_hasta" name="fecha_hasta" required value="{{ fecha_hasta or '' }}">
+
+  <button type="submit">Generar planilla</button>
+</form>
+
+
+<!-- Bloque que muestra las fechas seleccionadas -->
+{% if fecha_desde and fecha_hasta %}
+<div id="fechas-seleccionadas" style="margin-top:30px; text-align:center;">
+  <label style="margin-right:10px;">Desde:</label>
+  <input type="text" value="{{ fecha_desde }}" readonly style="margin-right:20px;">
+  <label style="margin-right:10px;">Hasta:</label>
+  <input type="text" value="{{ fecha_hasta }}" readonly>
+</div>
+{% endif %}
+
+<div id="resultado-planilla"></div>
+
+<table class="planilla">
+  <thead>
+    <thead>
+      <tr>
+        <th>Nro de factura</th>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Cliente</th>
+        <th>RUC</th>
+        <th>Concepto</th>
+        <th>Total IVA Incluido</th>
+        <th>Monto</th>
+        <th>Tasa</th>
+      </tr>
+    </thead>
+
+  </thead>
+  <tbody>
+  <tbody>
+    {% for fila in planilla %}
+    <tr>
+      <td>{{ fila.nro_factura }}</td>
+      <td>{{ fila.fecha }}</td>
+      <td>{{ fila.tipo }}</td>
+      <td>{{ fila.nombre }}</td>
+      <td>{{ fila.ruc }}</td>
+      <td>{{ fila.concepto }}</td>
+      <td>{{ fila.total }}</td>
+      <td>{{ fila.monto }}</td>
+      <td>{{ fila.tasa }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% if total_general %}
+<div style="margin-top:20px; text-align:center; font-weight:bold; font-size:1.2em;">
+  TOTAL GENERAL: {{ total_general }}
+</div>
+{% endif %}
+
+
+
+
+<form id="form-exportar" method="POST" action="/exportar_excel_r"
+  style="display:flex; gap:15px; justify-content:center; margin-top:20px;">
+  <input type="hidden" name="fecha_desde" value="{{ fecha_desde }}">
+  <input type="hidden" name="fecha_hasta" value="{{ fecha_hasta }}">
+
+  <button type="submit" class="btn-exportar">Exportar a Excel</button>
+
+  <!-- Botón limpiar -->
+  <button type="button" class="btn-exportar" onclick="window.location.href='/resumen'">
+    Limpiar
+  </button>
+</form>
+
+
+<script>
+  // Validación de fechas en el formulario principal
+  document.getElementById('form-fechas').addEventListener('submit', function (e) {
+    const desde = document.getElementById('fecha_desde').value;
+    const hasta = document.getElementById('fecha_hasta').value;
+
+    if (desde > hasta) {
+      e.preventDefault();
+      alert("La fecha 'desde' no puede ser mayor que 'hasta'.");
+    }
+  });
+</script>
+
+{% endblock %}

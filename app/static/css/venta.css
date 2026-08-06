@@ -1,0 +1,378 @@
+.ventas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  /* 3 columnas de tamaño adaptable */
+  gap: 45px;
+  /* Espacio entre columnas */
+  max-width: 800px;
+  /* Reduce el ancho total */
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  /* Evita saltos de línea en los labels */
+}
+
+/* Ajuste para los labels */
+.form-group label {
+  font-weight: bold;
+  min-width: 120px;
+  /* Reduce el ancho del label */
+  text-align: right;
+  font-size: 12px;
+  /* Tamaño de fuente más pequeño */
+}
+
+/* Ajuste para los inputs y selects */
+.form-group input,
+.form-group select {
+  width: 100%;
+  max-width: 200px;
+  /* Hace los campos más angostos */
+  min-width: 150px;
+  /* Evita que se hagan demasiado pequeños */
+  padding: 4px;
+  /* Reduce el padding */
+  font-size: 12px;
+  /* Tamaño de fuente más pequeño */
+  flex-grow: 1;
+  /* Se ajusta al espacio disponible */
+}
+
+
+.botones-modales {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.botones-modales button {
+  padding: 5px;
+  /* Ajusta el relleno */
+  font-size: 12px;
+  /* Tamaño de fuente más pequeño */
+  height: 30px;
+  /* Ajusta la altura para que coincida con los inputs */
+  min-width: 150px;
+  /* Igual que los labels */
+  max-width: 200px;
+  /* Igual que los inputs */
+  text-align: center;
+}
+
+
+#cuotasTable tbody tr,
+#cuentasTable tbody tr {
+  line-height: 1.2;
+  /* menos espacio vertical */
+  font-size: 0.85rem;
+  /* texto más chico */
+}
+
+
+#cuotasTable td,
+#cuotasTable th,
+#cuentasTable td,
+#cuentasTable th {
+  padding: 4px 8px !important;
+  /* Menos espacio interno */
+  font-size: 0.85rem !important;
+  /* Texto más chico */
+}
+
+#cuotasTable th:nth-child(1),
+#cuotasTable td:nth-child(1),
+#cuentasTable th:nth-child(1),
+#cuentasTable td:nth-child(1) {
+  width: 80px;
+  /* o lo que necesites */
+}
+
+
+.col-pequena {
+  width: 70px;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+}
+
+
+#descuentos {
+  position: sticky;
+  top: 100px;
+  /* Ajustá según la altura que querés desde arriba */
+  z-index: 10;
+  background-color: #fff;
+  /* Fondo blanco para evitar solapes */
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.oculto {
+  display: none;
+}
+
+
+
+
+.formulario-recuadro {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+}
+
+.ventas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input,
+select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+#table_alumnos td,
+#table_alumnos th,
+#table_padres td,
+#table_padres th,
+#productTable td,
+#productTable th,
+#detallesPagos td,
+#detallesPagos th {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.85rem;
+  /* más compacto */
+}
+
+.btn-editar {
+  background-color: #20c997;
+   color: white;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+}
+
+.btn-xs {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* 🌐 Compactar tabla */
+#tablaAlumnos {
+  font-size: 12px; /* Tamaño general de letra */
+}
+
+#tablaAlumnos th,
+#tablaAlumnos td {
+  padding: 4px 6px; /* Reduce el espacio dentro de cada celda */
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap; /* Evita que las palabras se partan en varias líneas */
+}
+
+/* 🔹 Encabezados más compactos */
+#tablaAlumnos thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 11px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* 🔹 Filas alternadas más suaves */
+#tablaAlumnos tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* 🔹 Ajustar la tabla para desplazamiento horizontal si hay muchas columnas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+
+
+  #tablaCuotas table {
+    font-size: 0.9rem;
+  }
+
+  #tablaCuotas th {
+    white-space: nowrap;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+  }
+
+  .select2-container--bootstrap5 .select2-selection {
+    height: calc(2.5rem + 2px) !important;
+    padding: 0.375rem 0.75rem;
+  }
+
+/* 🏫 Estilo institucional para tabla de cuotas */
+#tablaCuotas {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+#tablaCuotas th {
+  background-color: #2c3e50;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+#tablaCuotas td {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+  text-align: center;
+}
+
+#tablaCuotas td.monto,
+#tablaCuotas td.saldo {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* 🎯 Colores por estado */
+.badge.bg-cancelado {
+  background-color: #28a745; /* verde */
+}
+.badge.bg-pendiente {
+  background-color: #dc3545; /* rojo */
+}
+.badge.bg-parcial {
+  background-color: #ffc107; /* amarillo */
+}
+
+/* 🧾 Encabezado institucional */
+#estadoCuentaCompleto h5 {
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+#estadoCuentaCompleto p {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+
+/* Estilo del formulario */
+.form-fechas {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-fechas label {
+  font-weight: bold;
+  color: #333;
+}
+
+.form-fechas input, .form-fechas button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-fechas button {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form-fechas button:hover {
+  background-color: #45a049;
+}
+
+/* Estilo de la tabla */
+.planilla {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  margin-top: 20px;
+}
+
+.planilla th, .planilla td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: right;
+}
+
+.planilla th {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+}
+
+.planilla tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.planilla tr:hover {
+  background-color: #ddd;
+}
+
+.planilla td:first-child, .planilla td:nth-child(2) {
+  text-align: left;
+}
+
+
+.btn-exportar {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-exportar:hover {
+  background-color: #0b6fc2;
+}
+
+.fila-totales {
+  font-weight: bold;
+  background-color: #f0f8ff; /* azul claro */
+  color: #000080;            /* azul oscuro */
+  border-top: 2px solid #000;
+  text-transform: uppercase;
+}
+
+.col-cobro {
+  background-color: hsl(0, 1%, 50%);   /* fondo gris claro */
+  font-weight: bold;           /* texto en negrita */
+  color: #040c04;              /* verde oscuro */
+  border-left: 2px solid #ccc; /* separador visual */
+}

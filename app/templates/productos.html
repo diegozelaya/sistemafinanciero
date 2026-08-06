@@ -1,0 +1,58 @@
+
+{%extends 'layout.html'%}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container mt-4">
+    <h3>Productos</h3>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarProducto">Agregar Producto</button>
+
+    <table class="table table-bordered" id="tablaProductos">
+        <thead class="table-light">
+            <tr>
+               <th>ID</th>
+                <th>Nombre</th>
+               
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Se llenará dinámicamente con JS -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Agregar / Editar Producto -->
+<div class="modal fade" id="modalAgregarProducto" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalProductoTitle">Agregar Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="productoId">
+        <div class="mb-3">
+          <label for="productoNombre" class="form-label">Nombre</label>
+          <input type="text" class="form-control" id="productoNombre">
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-primary" id="guardarProducto">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Tu script personalizado -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src={{url_for('static', filename='js/editproductos.js' )}} defer></script>
+
+{%endblock%}

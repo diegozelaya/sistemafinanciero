@@ -1,0 +1,128 @@
+{% extends 'layout.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+{% block body %}
+<h1 style="text-align:center; margin-top:20px; font-size:2em; font-weight:bold;">
+  ARQUEO DE CAJAS
+</h1>
+
+<form id="form-fechas" method="POST" action="/generar-planilla" class="form-fechas"
+  style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:30px;">
+
+  <label for="fecha_desde">Fecha desde:</label>
+  <input type="date" id="fecha_desde" name="fecha_desde" required value="{{ fecha_desde or '' }}">
+
+  <label for="fecha_hasta">Fecha hasta:</label>
+  <input type="date" id="fecha_hasta" name="fecha_hasta" required value="{{ fecha_hasta or '' }}">
+
+  <button type="submit">Generar planilla</button>
+</form>
+
+
+<!-- Bloque que muestra las fechas seleccionadas -->
+{% if fecha_desde and fecha_hasta %}
+<div id="fechas-seleccionadas" style="margin-top:30px; text-align:center;">
+  <label style="margin-right:10px;">Desde:</label>
+  <input type="text" value="{{ fecha_desde }}" readonly style="margin-right:20px;">
+  <label style="margin-right:10px;">Hasta:</label>
+  <input type="text" value="{{ fecha_hasta }}" readonly>
+</div>
+{% endif %}
+
+<div id="resultado-planilla"></div>
+
+<table class="planilla">
+  <thead>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Nro de factura</th>
+        <th>Matrícula</th>
+        <th>Cuota</th>
+        <th>Fotocopia</th>
+        <th>Seguro Médico</th>
+        <th>Mora</th>
+        <th>Uniforme</th>
+        <th>Libros</th>
+        <th>Librería</th>
+        <th>R Justas</th>
+        <th>Efectivo</th>
+        <th>Cheque</th>
+        <th>Transferencia</th>
+        <th>Desc. Sueldo</th>
+      </tr>
+    </thead>
+
+  </thead>
+  <tbody>
+    {% for fila in planilla %}
+    <tr class="{% if fila[0] == 'Totales Ventas' %}fila-totales{% endif %}">
+      {% for celda in fila %}
+      {% if loop.index > 11 %} {# 👈 desde la columna 12 en adelante son cobros #}
+      <td class="col-cobro">{{ celda }}</td>
+      {% else %}
+      <td>{{ celda }}</td>
+      {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+
+{% if totales_cobros %}
+<h2 style="text-align:center; margin-top:30px;">Totales por Forma de Cobro</h2>
+
+<table class="planilla">
+  <thead>
+    <tr>
+      <th>Efectivo</th>
+      <th>Cheque</th>
+      <th>Transferencia</th>
+      <th>Desc. Sueldo</th>
+       <th>TOTAL GENERAL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="fila-totales">
+      <td>{{ totales_cobros['Efectivo'] }}</td>
+      <td>{{ totales_cobros['Cheque'] }}</td>
+      <td>{{ totales_cobros['Transferencia'] }}</td>
+      <td>{{ totales_cobros['Desc. Sueldo'] }}</td>
+      <td>{{ totales_cobros['Total General'] }}</td> <!-- 🔹 mostrar total -->
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+
+
+
+<form id="form-exportar" method="POST" action="/exportar_excel"
+  style="display:flex; gap:15px; justify-content:center; margin-top:20px;">
+  <input type="hidden" name="fecha_desde" value="{{ fecha_desde }}">
+  <input type="hidden" name="fecha_hasta" value="{{ fecha_hasta }}">
+
+  <button type="submit" class="btn-exportar">Exportar a Excel</button>
+
+  <!-- Botón limpiar -->
+  <button type="button" class="btn-exportar" onclick="window.location.href='/arqueo'">
+    Limpiar
+  </button>
+</form>
+
+
+<script>
+  // Validación de fechas en el formulario principal
+  document.getElementById('form-fechas').addEventListener('submit', function (e) {
+    const desde = document.getElementById('fecha_desde').value;
+    const hasta = document.getElementById('fecha_hasta').value;
+
+    if (desde > hasta) {
+      e.preventDefault();
+      alert("La fecha 'desde' no puede ser mayor que 'hasta'.");
+    }
+  });
+</script>
+
+{% endblock %}

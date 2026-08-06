@@ -1,0 +1,121 @@
+body {
+    background: #ffffff;
+}
+
+/* --- 📌 Mejoras para la tabla --- */
+
+/* Reducir el tamaño de la tabla y hacerla más legible */
+.table-sm th,
+.table-sm td {
+    font-size: 10px;
+    /* Tamaño de fuente más pequeño */
+    padding: 4px;
+    /* Menos espacio entre el contenido de las celdas */
+    white-space: nowrap;
+    /* Evita que el texto se divida en varias líneas */
+    overflow: hidden;
+    /* Esconde cualquier texto que sobresalga de las celdas */
+    text-overflow: ellipsis;
+    /* Muestra puntos suspensivos si el texto es demasiado largo */
+}
+
+/* Hacer que la tabla se ajuste a la pantalla sin desplazamiento horizontal */
+.table-sm {
+    table-layout: fixed;
+    /* Usa un ancho fijo para las columnas */
+    width: 100%;
+    /* Ocupa todo el ancho disponible */
+    border-collapse: collapse;
+    /* Elimina el espacio entre bordes de celdas */
+}
+
+/* Ajuste para los botones en la tabla */
+.btn-sm {
+    font-size: 9px;
+    /* Reduce el tamaño de la fuente de los botones */
+    padding: 3px 6px;
+    /* Reduce el padding de los botones */
+}
+
+/* Para evitar desplazamiento horizontal en pantallas pequeñas */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* 🔹 Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+
+    .table-sm th,
+    .table-sm td {
+        font-size: 9px;
+        /* Ajuste de fuente más pequeño */
+        padding: 3px;
+        /* Reducir padding */
+    }
+}
+
+/* --- 📌 Mejoras en los Select y el Campo RUC --- */
+
+/* Ajustar el ancho de los select2 */
+#asociado,
+#cliente {
+    width: 100% !important;
+    /* Hace que ocupen todo el ancho del contenedor */
+    max-width: 450px;
+    /* Un poco más ancho para aprovechar mejor el espacio */
+}
+
+/* Ajustar el tamaño del campo RUC */
+#ruc {
+    width: 120px;
+    /* Reducido aún más para mejor distribución */
+    text-align: center;
+    /* Centrar el texto */
+    font-size: 12px;
+    /* Tamaño de fuente más grande para legibilidad */
+    font-weight: bold;
+    /* Resaltar el texto */
+    background-color: #f5f5f5;
+    /* Fondo gris claro para indicar que es de solo lectura */
+    border: 1px solid #ccc;
+    /* Agregar un borde sutil */
+}
+
+
+.select2-container {
+    width: 100% !important;
+    /* Asegura que el contenedor Select2 tome todo el espacio */
+    max-width: 450px !important;
+    /* Igual que el select normal */
+}
+
+.select2-selection {
+    height: 38px !important;
+    /* Asegura que el Select2 tenga una altura adecuada */
+    padding: 4px !important;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.cuotaGrupo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cuotaGrupo label {
+  margin-right: 4px;
+  min-width: 80px;
+}
+
+.fechaCuota,
+.montoCuota {
+  width: 120px;
+  padding: 4px;
+  font-size: 0.9em;
+  display: inline-block;
+}

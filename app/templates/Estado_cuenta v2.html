@@ -1,0 +1,55 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+<!-- ✅ Encabezado de filtros -->
+<div class="container mt-4">
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+
+            <div class="row g-3 align-items-end">
+                <!-- 🔹 Select2: Alumno -->
+                <div class="col-md-5">
+                    <label for="alumno" class="form-label fw-bold">Alumno:</label>
+                    <select class="form-select form-select-sm " id="alumnoestado" name="alumnoestado">
+                        <option value="">Seleccione o busque un alumno</option>
+                    </select>
+                </div>
+
+                <!-- 🔹 Año lectivo -->
+                <div class="col-md-3">
+                    <label for="selectAnio" class="form-label fw-bold">Año lectivo:</label>
+                    <select id="selectAnioLectivo" class="form-select">
+                        <option value="">Seleccione año</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+
+                <!-- 🔹 Botón Buscar -->
+                <div class="col-md-2">
+                    <button id="btnBuscar" class="btn btn-primary w-100">
+                        🔍 Buscar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🔹 Contenedor de la tabla de cuotas -->
+    <div id="tablaCuotas" class="mt-3"></div>
+
+</div>
+
+
+<!-- Tu módulo -->
+<script  src="{{ url_for('static', filename='js/reportes_cobranza.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+{% endblock %}

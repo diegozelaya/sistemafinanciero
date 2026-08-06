@@ -1,0 +1,315 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="ventas-container">
+    <!-- Encabezado en un recuadro -->
+    <div class="ventas-header">
+        <h4>MODULO DE VENTAS</h4>
+    </div>
+
+
+    <div class="container mt-4">
+        <div class="card shadow-sm border-4">
+            <div class="card-body py-2 px-3">
+                <div class="text-center">
+                    <h5>Datos de la Venta</h5>
+                </div>
+                <form id="productForm" method="post">
+                    <div class="row g-1">
+                        <div class="col-md-3">
+                            <label for="nrofactura" class="form-label mb-1 small">Nro. de Factura:</label>
+                            <input type="text" class="form-control form-control-sm" id="nrofactura" name="nrofactura">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="fechaventa" class="form-label mb-1 small">Fecha:</label>
+                            <input type="date" class="form-control form-control-sm" id="fechaventa" name="fechaventa">
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    const fechaventa = document.getElementById('fechaventa');
+
+                                    // Esperar a que se termine de renderizar el input por completo
+                                    setTimeout(() => {
+                                        if (fechaventa && !fechaventa.value) {
+                                            const today = new Date().toISOString().split('T')[0];
+                                            fechaventa.value = today;
+                                        }
+                                    }, 100); // espera 100 milisegundos
+                                });
+                            </script>
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="condicionventa" class="form-label mb-1 small">Cond. Pago:</label>
+                            <select class="form-select form-select-sm" id="condicionventa" name="condicionventa">
+                                <option value="1">Contado</option>
+                                <option value="2">Crédito</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="timbrado" class="form-label mb-1 small">Timbrado:</label>
+                            <select class="form-select form-select-sm" id="timbrado" name="timbrado">
+                                <option value="">Seleccione un timbrado</option>
+                            </select>
+                        </div>
+
+
+
+
+
+                        <div class="col-md-3">
+                            <label for="asociado" class="form-label mb-1 small">Alumno:</label>
+                            <select class="form-select form-select-sm" id="asociado" name="asociado">
+                                <option value="">Seleccione un asociado</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="cliente" class="form-label mb-1 small">Cliente:</label>
+                            <select class="form-select form-select-sm" id="cliente" name="cliente">
+                                <option value="">Seleccione o busque un cliente</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="ruc" class="form-label mb-1 small">RUC:</label>
+                            <input type="text" class="form-control form-control-sm" id="ruc" name="ruc" readonly>
+                        </div>
+
+
+
+                        <div class="col-md-3">
+                            <label for="idmoneda" class="form-label mb-1 small">Moneda:</label>
+                            <select class="form-select form-select-sm" id="idmoneda" name="moneda"></select>
+                        </div>
+                    </div>
+
+
+                    <!-- Nueva tarjeta solo para los importes -->
+                    <div class="card shadow-sm border-4 mt-4">
+                        <div class="card-body py-2 px-3">
+                            <div class="text-center mb-2">
+                                <h6 class="mb-0">Totales</h6>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <label for="tefec" class="form-label mb-1 small">Total Efectivo:</label>
+                                    <input type="text" class="form-control form-control-sm" id="tefec" name="tefec">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="ttransf" class="form-label mb-1 small">Total Transf.:</label>
+                                    <input type="text" class="form-control form-control-sm" id="ttransf" name="ttransf">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="tcheque" class="form-label mb-1 small">Total Cheque:</label>
+                                    <input type="text" class="form-control form-control-sm" id="tcheque" name="tcheque">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="tdesc" class="form-label mb-1 small">Desc. Sueldo:</label>
+                                    <input type="text" class="form-control form-control-sm" id="tdesc" name="tdesc">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" id="btnCuotas" class="btn btn-secondary btn-sm">
+                            Agregar Cuotas y Cuentas
+                        </button>
+                        <button type="button" id="btnProductos" class="btn btn-secondary btn-sm">
+                            Agregar Productos
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <br><br>
+
+        <div class="text-center">
+            <h5>Detalle de Venta</h5>
+        </div>
+        <table id="productTable" class="table table-bordered table-striped table-hover table-sm align-middle">
+
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Precio Unitario</th>
+                    <th>Descuento</th>
+                    <th>Cantidad</th>
+                    <th>Sub Total</th>
+                    <th>IVA</th>
+                    <th>Total con IVA</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="text-end"><strong>Total General:</strong></td>
+                    <td id="totalGeneral">0</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+
+        </table>
+        <button type="button" class="btn btn-secondary" id="guardarventaBtn">Guardar Venta</button>
+
+
+    </div>
+</div>
+
+
+<!-- MODAL PARA AGREGAR CUOTAS -->
+<div class="modal fade" id="modalCuotas" tabindex="-1" aria-labelledby="modalCuotasLabel">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCuotasLabel">Cuotas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Columna Izquierda (Tablas y asociado) -->
+                    <div class="col-md-6">
+                        <label for="asociadomod">Asociado:</label>
+                        <select name="asociadomod" id="asociadomod" class="form-select mb-3">
+                            <option value="">Seleccione un asociado</option>
+                        </select>
+
+                        <h6>Cuotas</h6>
+                        <table id="cuotasTable" class="table table-sm table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nro Cuota</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha Vencimiento</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+
+                        <hr>
+                        <h6>Cuentas del Asociado</h6>
+                        <table id="cuentasTable" class="table table-sm table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Matricula</th>
+                                    
+                                    <th>Monto</th>
+                                    <th>Fecha de Venc.</th>
+                                    <th>Tipo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Columna Derecha (Controles adicionales) -->
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-end align-items-start mb-3" id="selectpagos">
+                            <label for="tipoPago" class="me-2 mt-2">Tipo de Pago:</label>
+                            <select id="tipoPago" class="form-select" style="width: 200px;">
+                                <option value="" selected disabled>-- Seleccionar tipo de pago --</option>
+
+                            </select>
+
+
+                        </div>
+                        <div id="contenedorOpcionesPago" class="mt-3"></div>
+                        <!-- Aquí podés agregar más controles en el futuro -->
+
+                        <div id="contenedorCuentasSeleccion" class="mt-4" style="display: none;">
+                            <h5>Seleccione la cuenta a pagar</h5>
+                            <table class="table table-bordered table-hover table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Elegir</th>
+                                        <th>Año</th>
+                                        
+                                        <th>Monto</th>
+                                        <th>Vencimiento</th>
+                                        <th>Observación</th>
+                                        <th>Monto a pagar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCuentasSeleccion">
+                                    <!-- Filas dinámicas aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="descuentos" class="mt-5">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="botonescuotascompletas" class="modal-footer">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- MODAL PARA AGREGAR PRODUCTOS -->
+<div class="modal fade" id="modalProductos" tabindex="-1" aria-labelledby="modalProductosLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProductosLabel">Agregar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label for="selectProducto" class="form-label">Producto:</label>
+                    <select id="selectProducto" class="form-select">
+                        <option value="">Seleccione un producto</option>
+                        <!-- Se cargan dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="montoProducto" class="form-label">Monto:</label>
+                    <input type="text" id="montoProducto" class="form-control" placeholder="Ingrese el monto" min="0"
+                        step="0.01">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" id="agregarProductoBtn">Agregar Producto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Tu script personalizado -->
+
+<script src={{url_for('static', filename='js/venta.js' )}} defer></script>
+{% endblock %}

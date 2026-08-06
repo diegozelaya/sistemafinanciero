@@ -1,0 +1,240 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container">
+  <h3> Búsqueda de Cuentas</h3>
+  <div class="card p-2 mb-2">
+    <form id="filtrocuentas" class="row g-2">
+
+
+      <div class="col-md-3">
+        <label for="alumno" class="form-label">Alumno</label>
+        <select class="form-select form-select-sm" id="alumnocuenta" name="alumnocuenta">
+          <option value="">Seleccione o busque un alumno</option>
+        </select>
+      </div>
+
+
+
+      <div class="col-12 text-end mt-2">
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+        <button type="button" class="btn btn-outline-danger ms-2" id="btnLimpiar">Limpiar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<br>
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+
+      <th>Alumno</th>
+      <th>Monto Total</th>
+      <th>Año Lectivo</th>
+      <th>Curso</th>
+      <th>Detalles</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablacuentas">
+    <!-- Aquí se insertan las filas dinámicamente -->
+  </tbody>
+</table>
+<div class="modal fade" id="modalEditarCuenta" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Cuenta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Campos para editar -->
+        <input type="text" id="editCliente" class="form-control mb-2" placeholder="Cliente">
+        <input type="number" id="editMonto" class="form-control mb-2" placeholder="Monto">
+        <!-- Otros campos según necesidad -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_editcuenta" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Cuentas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Descripción -->
+        <label for="editDescripcion" class="form-label">Descripción</label>
+        <input type="text" id="editDescripcion" class="form-control mb-2" placeholder="Ingrese una descripción">
+
+
+        <!-- Producto -->
+        <label for="editProducto" class="form-label">Producto</label>
+        <select id="editProducto" class="form-select mb-2">
+          <!-- Opciones se insertan dinámicamente -->
+        </select>
+
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Nro. de Cuota</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Débito</th>
+              <th>Crédito</th>
+
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleCuentaedit">
+            <!-- Se insertan los detalles dinámicamente -->
+          </tbody>
+        </table>
+
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" id="guardarCambiosCuenta">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal para ver el detale "VER"-->
+<div class="modal fade" id="modalVerDetalle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de la Cuenta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group mb-3">
+          <li class="list-group-item"><strong>Descripción:</strong> <span id="infoDescripcion"></span></li>
+          <li class="list-group-item"><strong>Producto:</strong> <span id="infoProducto"></span></li>
+        </ul>
+
+
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Nro. de Cuota</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Débito</th>
+              <th>Crédito</th>
+              <th>Saldo a cobrar</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleCuentaVer">
+            <!-- Se insertan los detalles dinámicamente -->
+          </tbody>
+        </table>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 🟢 MODAL NUEVA CUENTA -->
+<div class="modal fade" id="modal_nuevacuenta" tabindex="-1" aria-labelledby="modalNuevaCuentaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalNuevaCuentaLabel">Agregar Nueva Cuenta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Producto -->
+        <div class="mb-3">
+          <label for="nuevoProducto" class="form-label">Producto</label>
+          <select id="nuevoProducto" class="form-select">
+            <!-- Se cargarán dinámicamente desde /obtener_productosedit -->
+          </select>
+        </div>
+
+        <!-- Descripción -->
+        <div class="mb-3">
+          <label for="nuevaDescripcion" class="form-label">Descripción</label>
+          <input type="text" id="nuevaDescripcion" class="form-control"
+            placeholder="Ingrese la descripción de la cuenta">
+        </div>
+
+
+
+        <!-- Detalle de cuotas -->
+        <div class="mb-3">
+          <label class="form-label">Cuotas</label>
+          <table class="table table-sm table-bordered" id="tablaCuotasNuevaCuenta">
+            <thead class="table-light">
+              <tr>
+                <th>N°</th>
+                <th>Fecha Vencimiento</th>
+                <th>Débito</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filas de cuotas se agregarán dinámicamente -->
+            </tbody>
+          </table>
+          <button class="btn btn-outline-primary btn-sm" id="btnAgregarCuota">➕ Agregar cuota</button>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success" id="guardarNuevaCuenta">💾 Guardar Cuenta</button>
+        <button id="closeModalHidden" type="button" class="btn btn-secondary d-none" data-bs-dismiss="modal"></button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastSuccess" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+    aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        ✅ Nueva cuenta creada correctamente
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Tu script personalizado -->
+
+<!-- Tu módulo -->
+<script type="module" src="{{ url_for('static', filename='js/editcuenta.js') }}"></script>
+
+
+
+{% endblock %}

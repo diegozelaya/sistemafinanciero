@@ -1,0 +1,125 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container mt-4">
+    <h2>Módulo de Padres</h2>
+    <div class="card p-2 shadow-sm" style="max-width: 700px;">
+        <div class="card-body p-2">
+            <div class="d-flex gap-2 align-items-center">
+                <button type="button" class="btn btn-success btn-sm px-3 py-1" data-bs-toggle="modal"
+                    data-bs-target="#addModal" id= "btnadd" style="font-size: 0.8rem; min-width: 130px;">
+                    Agregar Usuario
+                </button>
+                
+                <input type="text" id="searchBox" class="form-control form-control-sm"
+                    placeholder="Buscar por nombre, apellido o documento">
+            </div>
+        </div>
+    </div>
+    <br>
+    <table id="table_padres" class="table table-bordered table-striped table-hover table-sm align-middle">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>RUC</th>
+                <th>Nombre y Apellido</th>
+                <th>Teléfono</th>
+                <th>Celular</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="userTable">
+         {% for user in users %}
+            <tr>
+                <td>{{ user[0] }}</td>
+                <td>{{ user[1] }}</td>
+                <td>{{ user[2] }}</td>
+                <td>{{ user[3] }}</td>
+                <td>{{ user[4] }}</td>
+                <td>{{ user[5] }}</td>
+                <td>{{ user[6] }}</td>
+                <td>{{ user[7] }}</td>
+                <td>{% if user[8] == 1 %}Activo{% else %}Inactivo{% endif %}</td>
+
+                <!---- <button type="button" class="btn btn-secondary btn-sm deleteBtn" data-id="{{ user[0] }}">Eliminar</button>  -->
+                <td class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm px-2 py-1 editBtn"
+                        style="background-color: #343a40; color: white;" data-id="{{ user[0] }}">
+                        Editar
+                    </button>
+
+
+                    <button type="button" class="btn btn-secondary btn-sm px-2 py-1 toggleStatusBtn"
+                        style="font-size: 0.75rem; min-width: 110px;" data-id="{{ user[0] }}"
+                        data-status="{{ user[8] }}">
+                        {% if user[8] == 1 %} Dar de baja {% else %} Activar cliente {% endif %}
+                    </button>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Agregar -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar o Editar Padres</h5>
+                <button type="button" class="btn-close "   data-bs-dismiss="modal"></button>  
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input type="text" id="cedula" class="form-control" placeholder="Nro de CI">
+                </div>
+                <div class="mb-2">
+                    <label for="ruc" class="form-label">RUC</label>
+                    <input type="text" id="ruc" class="form-control" placeholder="RUC">
+                </div>
+                <div class="mb-2">
+                    <label for="nombre" class="form-label">Nombre y Apellido</label>
+                    <input type="text" id="nombre" class="form-control" placeholder="Nombre y Apellido">
+                </div>
+                <div class="mb-2">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+                </div>
+                <div class="mb-2">
+                    <label for="celular" class="form-label">Celular</label>
+                    <input type="text" id="celular" class="form-control" placeholder="Celular">
+                </div>
+                <div class="mb-2">
+                    <label for="email" class="form-label">Correo Electrónico</label>
+                    <input type="email" id="email" class="form-control" placeholder="Email">
+                </div>
+                <div class="mb-2">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" id="direccion" class="form-control" placeholder="Dirección">
+                </div>
+                <input type="hidden" id="edit_id">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" style="background-color: #343a40; color: white;" id="saveUser">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src={{url_for('static', filename='js/crud.js' )}}></script>
+</body>
+
+</html>
+
+{%endblock%}

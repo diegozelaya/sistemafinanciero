@@ -1,0 +1,95 @@
+{%extends 'layout.html'%}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+
+<div class="container mt-4">
+  <h3>Timbrados</h3>
+  <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarTimbrado">Agregar
+    Timbrado</button>
+
+  <table class="table table-bordered" id="tablaTimbrados">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>N° TIMBRADO</th>
+        <th>ESTABLECIMIENTO</th>
+        <th>PUNTO DE EMISIÓN</th>
+        <th>FECHA DESDE</th>
+        <th>FECHA HASTA</th>
+        <th>NÚMERO DESDE</th>
+        <th>NÚMERO HASTA</th>
+        <th>ESTADO</th>
+        <th>ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Se llenará dinámicamente con JS -->
+    </tbody>
+  </table>
+
+</div>
+
+<!-- Modal Agregar / Editar Producto -->
+<div class="modal fade" id="modalAgregarTimbrado" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTimbradoTitle">Agregar Timbrado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="timbradoId">
+        <div class="mb-3">
+          <label for="timbradoNumero" class="form-label">Nro. Timbrado</label>
+          <input type="text" class="form-control" id="timbradonroinput">
+        </div>
+
+        <div class="mb-3">
+          <label for="establecimiento" class="form-label">Establecimiento:</label>
+          <input type="text" class="form-control" id="establecimiento">
+        </div>
+
+        <div class="mb-3">
+          <label for="emision" class="form-label">P. Emisión:</label>
+          <input type="text" class="form-control" id="emision">
+        </div>
+
+        <div class="mb-3">
+          <label for="desde class=" form-label">Desde:</label>
+          <input type="date" class="form-control" id="desde">
+        </div>
+
+        <div class="mb-3">
+          <label for="hasta" class="form-label">Hasta:</label>
+          <input type="date" class="form-control" id="hasta">
+        </div>
+
+        <div class="mb-3">
+          <label for="desde class=" form-label">Nro. Desde:</label>
+          <input type="number" class="form-control" id="nrodesde">
+        </div>
+
+        <div class="mb-3">
+          <label for="hasta" class="form-label">Nro. Hasta:</label>
+          <input type="number" class="form-control" id="nrohasta">
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-primary" id="guardartimbrado">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Tu script personalizado -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src={{url_for('static', filename='js/editimbrado.js' )}} defer></script>
+
+{%endblock%}

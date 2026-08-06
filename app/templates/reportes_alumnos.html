@@ -1,0 +1,95 @@
+{%extends 'layout.html'%}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venta.css') }}">
+{% endblock %}
+
+{%block body%}
+<div class="container mt-4">
+    <h4 class="mb-3">📋 Listado de alumnos por año lectivo y grado</h4>
+
+    <div class="card shadow-sm p-3 rounded-3">
+        <div class="row g-3 align-items-end">
+
+            <!-- Año lectivo -->
+            <div class="col-md-4">
+                <label class="form-label">Año lectivo</label>
+                <select id="selectAnioLectivo" class="form-select">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                </select>
+            </div>
+
+            <!-- Grado -->
+            <div class="col-md-4">
+                <label class="form-label">Grado / Curso</label>
+                <select id="selectGrado" class="form-select">
+                    <option value="">Seleccione grado</option>
+                    {% for grado in grados %}
+                    <option value="{{ grado.idcurso }}">{{ grado.nomcurso }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Orden -->
+            <div class="col-md-4">
+                <label class="form-label d-block">Ordenar por:</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="orden" id="ordenAlfabetico" value="nombre"
+                        checked>
+                    <label class="form-check-label" for="ordenAlfabetico">Alfabético (A-Z)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="orden" id="ordenMatricula" value="matricula">
+                    <label class="form-check-label" for="ordenMatricula">Orden de matrícula</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón generar -->
+        <div class="text-end mt-3">
+            <button id="btnGenerar" class="btn btn-primary">🔍 Generar Lista</button>
+            <button id="btnLimpiar" class="btn btn-secondary">Limpiar</button>
+        </div>
+    </div>
+
+    <!-- Tabla de resultados -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+            <table class="table table-bordered table-sm" id="tablaAlumnos">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Alumno</th>
+                        <th>Grado</th>
+                        <th>Edad</th>
+                        <th>Año lectivo</th>
+                        <th>Sexo</th>
+                        <th>Fecha de matrícula</th>
+                        <th>Responsable 1</th>
+                        <th>Teléfono 1</th>
+                        <th>Responsable 2</th>
+                        <th>Teléfono 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Seleccione filtros y presione "Generar"</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="text-end mt-3">
+        <button class="btn btn-success d-none" id="btnExportar">⬇ Exportar a Excel</button>
+    </div>
+</div>
+
+<!-- Tu módulo -->
+<script type="module" src="{{ url_for('static', filename='js/reportes_alumnos.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+{% endblock %}
