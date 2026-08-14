@@ -54,15 +54,33 @@ def add_cliente():
 def edit_cliente(user_id):
     data = request.get_json()
     cursor, con = get_cursor()
-    cursor.execute("""
+
+    sql = """
         UPDATE cliente 
-        SET ci=%s, ruc=%s, nombre=%s, telefono=%s, celular=%s, mail=%s, tipocliente=%s, falta=%s, ualta=%s, direccion=%s
+        SET ci=%s, ruc=%s, nombre=%s, telefono=%s, celular=%s, mail=%s, 
+            tipocliente=%s, falta=%s, ualta=%s, direccion=%s, activo=%s
         WHERE idcliente=%s
-    """, (data['ci'], data['ruc'], data['nombre'], data['telefono'], data['celular'], 
-          data['mail'], data['tipocliente'], data['falta'], data['ualta'], data['direccion'], user_id))
-    
+    """
+
+    cursor.execute(sql, (
+        data.get('ci'),
+        data.get('ruc'),
+        data.get('nombre'),
+        data.get('telefono'),
+        data.get('celular'),
+        data.get('mail'),
+        data.get('tipocliente'),
+        data.get('falta'),
+        data.get('ualta'),
+        data.get('direccion'),
+        1,  # activo por defecto
+        user_id
+    ))
+
     con.commit()
     return jsonify({"message": "Usuario actualizado correctamente"})
+
+
 
 
 #funcion para traer datos para editar
