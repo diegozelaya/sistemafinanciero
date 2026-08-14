@@ -22,13 +22,32 @@ def indexpadres():
 #@app.route('/add', methods=['POST'])
 def add_cliente():
     data = request.get_json()
-    cursor, con= get_cursor()
-    cursor.execute("INSERT INTO cliente (ci, ruc, nombre, telefono, celular, mail, tipocliente, falta, ualta, direccion) VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s,%s)",
-                   (data['ci'], data['ruc'], data['nombre'], data['telefono'], data['celular'],
-                    data['mail'], data['tipocliente'], data['falta'], data['ualta'], data['direccion'],
-                   ))
+    cursor, con = get_cursor()
+
+    sql = """
+        INSERT INTO cliente (
+            ci, ruc, nombre, telefono, celular, mail, tipocliente,
+            falta, ualta, direccion, activo
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1)
+    """
+
+    cursor.execute(sql, (
+        data['ci'],
+        data.get('ruc'),
+        data['nombre'],
+        data.get('telefono'),
+        data.get('celular'),
+        data.get('mail'),
+        data['tipocliente'],
+        data['falta'],
+        data['ualta'],
+        data.get('direccion')
+    ))
+
     con.commit()
     return jsonify({"message": "Usuario agregado correctamente"})
+
 
 # Ruta para editar usuario
 #@app.route('/edit/<int:user_id>', methods=['PUT'])
