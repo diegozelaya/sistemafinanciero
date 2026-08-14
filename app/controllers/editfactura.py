@@ -313,13 +313,15 @@ def obtener_venta_por_id(venta_id):
 
 
 
+
+
 def editar_factura(venta_id):
     data = request.get_json()
 
     fecha = data.get('fecha')
     nro_factura = data.get('nro_factura')
 
-    # Función auxiliar para convertir a int seguro
+    # Función auxiliar para convertir valores vacíos a 0
     def to_int(val):
         try:
             return int(val) if val not in (None, "", "null") else 0
@@ -331,15 +333,17 @@ def editar_factura(venta_id):
     pago_transferencia = to_int(data.get('pago_transferencia'))
     pago_cheque = to_int(data.get('pago_cheque'))
     pago_descuento = to_int(data.get('pago_descuento'))
+    pago_tarjeta = 0  # siempre 0
 
     # Validar suma de pagos
-    suma_pagos = pago_efectivo + pago_transferencia + pago_cheque + pago_descuento
+    suma_pagos = pago_efectivo + pago_transferencia + pago_cheque + pago_descuento + pago_tarjeta
     if suma_pagos != monto_total:
         return jsonify({
             'success': False,
             'error': f"La suma de los pagos ({suma_pagos}) no coincide con el monto original ({monto_total})."
         })
 
+    conn = None
     try:
         cursor, conn = get_cursor()
 
@@ -357,61 +361,28 @@ def editar_factura(venta_id):
             SET importeefectivo = %s,
                 importetransferencia = %s,
                 importecheque = %s,
-                importedescuento = %s
+                importedescuento = %s,
+                importetarjeta = %s
             WHERE idventa = %s
         """, (
             pago_efectivo,
             pago_transferencia,
             pago_cheque,
             pago_descuento,
+            pago_tarjeta,
             venta_id
         ))
 
         conn.commit()
-        conn.close()
-
         return jsonify({'success': True})
 
     except Exception as e:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return jsonify({'success': False, 'error': str(e)})
-
-
-    try:
-        cursor, conn = get_cursor()
-
-        # Actualizar tabla venta
-        cursor.execute("""
-            UPDATE venta
-            SET fecha = %s,
-                factura = %s
-            WHERE idventa = %s
-        """, (fecha, nro_factura, venta_id))
-
-        # Actualizar tabla cobro
-        cursor.execute("""
-            UPDATE cobro
-            SET importeefectivo = %s,
-                importetransferencia = %s,
-                importecheque = %s,
-                importedescuento = %s
-            WHERE idventa = %s
-        """, (
-            pago_efectivo,
-            pago_transferencia,
-            pago_cheque,
-            pago_descuento,
-            venta_id
-        ))
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({'success': True})
-
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        if conn:
+            conn.close()
 
 
     
