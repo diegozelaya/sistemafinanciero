@@ -70,8 +70,10 @@ def registrar_matricula():
         # 📥 Insertar detalles de matrícula
         detalles = data['detalles']
         sql_detalle = """
-            INSERT INTO matriculadet (idmatricula, nrocuota, debito, fechavencimiento, falta, activo)
-            VALUES (%s, %s, CAST(%s AS DECIMAL(15,2)), %s, %s, 1)
+            INSERT INTO matriculadet (
+                idmatricula, nrocuota, debito, credito, fechavencimiento, ualta, falta, activo
+            )
+            VALUES (%s, %s, CAST(%s AS DECIMAL(15,2)), %s, %s, %s, %s, 1)
         """
 
         for detalle in detalles:
@@ -86,7 +88,9 @@ def registrar_matricula():
                 idmatricula,
                 detalle['nro_cuota'],
                 monto_limpio,
+                0,  # crédito por defecto
                 detalle['fecha_vencimiento'],
+                1,  # ualta por defecto
                 fecha_alta
             ))
 
@@ -100,6 +104,7 @@ def registrar_matricula():
     finally:
         cursor.close()
         conn.close()
+
 
 
 def obtener_monedas():
