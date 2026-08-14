@@ -61,40 +61,51 @@ def refinanciar2():
 
     cursor, con = get_cursor()
 
-    # Crear nueva cuenta
+    # Crear nueva cuenta asociada
     cursor.execute("""
-    INSERT INTO cuenta_asociado (idmatricula, monto_total, falta, descripcion, activo, idproducto)
-    VALUES (%s, %s, NOW(), %s, %s, %s)
+        INSERT INTO cuenta_asociado (idmatricula, monto_total, falta, descripcion, activo, idproducto)
+        VALUES (%s, %s, NOW(), %s, %s, %s)
     """, (idmatricula, total, "Refinanciación de matrícula", 1, 7))
 
     idcuenta = cursor.lastrowid
 
-
-    # Insertar cuotas refinanciadas
+    # Insertar cuotas refinanciadas con valores fijos en nrocuota, monto y ualta
     for i in range(len(fechas)):
         cursor.execute("""
-            INSERT INTO cuenta_aso_detalle (cuenta_aso, detalle, debito, fechavenc)
-            VALUES (%s, %s, %s, %s)
-        """, (idcuenta, f"Cuota refinanciada {i+1}", montos[i], fechas[i]))
+            INSERT INTO cuenta_aso_detalle 
+            (cuenta_aso, nrocuota, monto, debito, credito, detalle, fechavenc, ualta, falta, activo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s)
+        """, (
+            idcuenta,
+            0,                  # nrocuota fijo en 0
+            0,                  # monto fijo en 0
+            montos[i],          # debito según lista
+            0,                  # credito en 0
+            f"Cuota refinanciada {i+1}",
+            fechas[i],
+            1,                  # ualta fijo en 1
+            1                   # activo
+        ))
 
     # Dar de baja cuotas originales
     cursor.execute("""
         UPDATE matriculadet
         SET activo = 0
-        WHERE idmatricula = %s 
+        WHERE idmatricula = %s
     """, (idmatricula,))
-    
-    # Actualizar estado de la matrícula principal
+
+    # Dar de baja matrícula principal
     cursor.execute("""
         UPDATE matricula
         SET activo = 0
         WHERE idmatricula = %s
-    """, ( idmatricula,))
+    """, (idmatricula,))
 
     con.commit()
     con.close()
 
     return jsonify({"status": "ok", "mensaje": "Refinanciación realizada con éxito"})
+
 
 
 
