@@ -154,11 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const datos = {
             fecha: fecha,
-            nro_factura: nro,
-            pago_efectivo: efectivo,
-            pago_transferencia: transf,
-            pago_cheque: cheque,
-            pago_descuento: desc,
+            nro_factura: nro|| 0,
+            pago_efectivo: efectivo|| 0,
+            pago_transferencia: transf|| 0,
+            pago_cheque: cheque|| 0,
+            pago_descuento: desc|| 0,
             monto: monto   // ← si quieres enviar también el monto
         };
 

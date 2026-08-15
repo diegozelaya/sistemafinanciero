@@ -317,7 +317,7 @@ def obtener_venta_por_id(venta_id):
 
 def editar_factura(venta_id):
     data = request.get_json()
-
+    print (data);
     fecha = data.get('fecha')
     nro_factura = data.get('nro_factura')
 
