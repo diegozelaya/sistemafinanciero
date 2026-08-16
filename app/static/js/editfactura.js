@@ -152,14 +152,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const cheque = document.getElementById('editPagoCheque').value;
         const desc = document.getElementById('editPagoDescuento').value;
 
+        
+        const efectivosum = parseInt(document.getElementById('editPagoEfectivo').value) || 0;
+        const transfsum = parseInt(document.getElementById('editPagoTransferencia').value) || 0;
+        const chequesum = parseInt(document.getElementById('editPagoCheque').value) || 0;
+        const descsum = parseInt(document.getElementById('editPagoDescuento').value) || 0;
+
+    // 👉 Sumatoria de pagos
+         const sumaPagos = efectivosum + transfsum + chequesum + descsum;
+
+    // Validación contra monto
+    if (sumaPagos !== monto) {
+        alert(`La suma de pagos (${sumaPagos}) no coincide con el monto (${monto}).`);
+        return; // corta aquí, no hace el fetch
+    }
         const datos = {
             fecha: fecha,
             nro_factura: nro|| 0,
-            pago_efectivo: efectivo|| 0,
-            pago_transferencia: transf|| 0,
-            pago_cheque: cheque|| 0,
-            pago_descuento: desc|| 0,
-            monto: monto   // ← si quieres enviar también el monto
+            pago_efectivo: parseInt(efectivo)|| 0,
+            pago_transferencia: parseInt(transf)|| 0,
+            pago_cheque: parseInt(cheque)|| 0,
+            pago_descuento: parseInt(desc)|| 0,
+            monto: parseInt(monto),  // ← si quieres enviar también el monto
+            idventa: id
         };
 
         console.log("los datos son:", datos);

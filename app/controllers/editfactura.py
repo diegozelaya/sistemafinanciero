@@ -15,7 +15,7 @@ def buscar_facturas():
 
     query = """
         SELECT v.idventa, v.factura, v.fecha, c.nombre,
-               (cob.importeefectivo + cob.importetarjeta + cob.importecheque + cob.importetransferencia) AS monto,
+               (cob.importeefectivo + cob.importetarjeta + cob.importecheque + cob.importetransferencia+cob.importedescuento) AS monto,
                v.activo
         FROM venta AS v
         JOIN cliente AS c ON c.idcliente = v.idcliente
@@ -69,6 +69,7 @@ def buscar_facturas():
 
     columnas = [col[0] for col in cur.description]
     resultados = [dict(zip(columnas, fila)) for fila in filas]
+    print("los resultados:",resultados)
     return jsonify(resultados)
 
 
@@ -310,80 +311,64 @@ def obtener_venta_por_id(venta_id):
     return None
 
 
-
-
-
-
-
 def editar_factura(venta_id):
     data = request.get_json()
-    print (data);
+
+    idventa = int(venta_id)
     fecha = data.get('fecha')
-    nro_factura = data.get('nro_factura')
+    factura = data.get('nro_factura')
+    pago_efectivo = data.get('pago_efectivo', 0)
+    pago_transferencia = data.get('pago_transferencia', 0)
+    pago_cheque = data.get('pago_cheque', 0)
+    pago_descuento = data.get('pago_descuento', 0)
+    importe_tarjeta=0
+    print ("datos recibidos", data),
+    print("tarjeta", importe_tarjeta),
+    print("el id venta", idventa)
+    if not idventa:
+        return jsonify({'ok': False, 'error': 'Falta id_venta'})
+    
+    if not factura:
+            return jsonify({'ok': False, 'error': 'Falta Nro de Factura'})
 
-    # Función auxiliar para convertir valores vacíos a 0
-    def to_int(val):
-        try:
-            return int(val) if val not in (None, "", "null") else 0
-        except ValueError:
-            return 0
-
-    monto_total = to_int(data.get('monto'))
-    pago_efectivo = to_int(data.get('pago_efectivo'))
-    pago_transferencia = to_int(data.get('pago_transferencia'))
-    pago_cheque = to_int(data.get('pago_cheque'))
-    pago_descuento = to_int(data.get('pago_descuento'))
-    pago_tarjeta = 0  # siempre 0
-
-    # Validar suma de pagos
-    suma_pagos = pago_efectivo + pago_transferencia + pago_cheque + pago_descuento + pago_tarjeta
-    if suma_pagos != monto_total:
-        return jsonify({
-            'success': False,
-            'error': f"La suma de los pagos ({suma_pagos}) no coincide con el monto original ({monto_total})."
-        })
-
-    conn = None
     try:
-        cursor, conn = get_cursor()
+        cur, conn = get_cursor()
 
-        # Actualizar tabla venta
-        cursor.execute("""
+        # Actualizar tabla ventas
+        cur.execute("""
             UPDATE venta
-            SET fecha = %s,
-                factura = %s
+            SET fecha = %s, factura=%s
             WHERE idventa = %s
-        """, (fecha, nro_factura, venta_id))
+        """, (fecha, factura, idventa))
 
         # Actualizar tabla cobro
-        cursor.execute("""
+        cur.execute("""
             UPDATE cobro
             SET importeefectivo = %s,
                 importetransferencia = %s,
                 importecheque = %s,
                 importedescuento = %s,
-                importetarjeta = %s
+                importetarjeta=%s
             WHERE idventa = %s
         """, (
             pago_efectivo,
             pago_transferencia,
             pago_cheque,
             pago_descuento,
-            pago_tarjeta,
-            venta_id
+            importe_tarjeta,
+            idventa
         ))
 
         conn.commit()
+        cur.close()
+        conn.close()
+
         return jsonify({'success': True})
 
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        if conn:
-            conn.close()
 
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)})
+    
 
     
     
