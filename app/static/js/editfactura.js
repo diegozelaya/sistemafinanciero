@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector("#modal_edit .btn-primary").addEventListener("click", async function () {
         const modalElement = document.getElementById("modal_edit");
         const id = modalElement.dataset.id;
-        const monto = modalElement.dataset.monto;
+        const monto = parseInt(modalElement.dataset.monto);
 
         console.log("el id de la venta", id);
         console.log("el monto es", monto);
