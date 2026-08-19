@@ -218,8 +218,8 @@ def guardar_venta():
 
         # Insertar en COBRO
         cursor.execute("""
-            INSERT INTO cobro (idventa, fecha, idcliente, idmoneda, importeefectivo, importetransferencia, importecheque, importedescuento, falta, ualta, activo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO cobro (idventa, fecha, idcliente, idmoneda, importeefectivo, importetransferencia, importecheque, importedescuento, importetarjeta, falta, ualta, activo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
         """, (
             id_venta,
             encabezado['fecha'],
@@ -229,6 +229,7 @@ def guardar_venta():
             encabezado['transferencia'],
             encabezado['cheque'],
             encabezado['descuento_sueldo'],
+            0,
             datetime.datetime.now().date(),
             1,
             1
