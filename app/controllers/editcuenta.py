@@ -520,23 +520,32 @@ def actualizar_cuenta():
 
         # Datos principales
         id_cuenta = data.get("idcuentaso")
-        producto=data.get("Product")
-        descripcion=data.get("descripcion")
+        producto = data.get("Product")
+        descripcion = data.get("descripcion")
         cuotas = data.get("cuotas", [])
-        print ("El id del producto", producto)
-        print ("El id de la cuenta", id_cuenta)
-        print ("las cuentas", cuotas)
+
+        print("El id del producto", producto)
+        print("El id de la cuenta", id_cuenta)
+        print("las cuentas", cuotas)
 
         cursor, con = get_cursor()
 
-        # 🔹 Actualizar cabecera de matrícula
+        # 🔹 Calcular la sumatoria de los nuevos débitos como enteros
+        total_debitos = 0
+        for cuota in cuotas:
+            try:
+                total_debitos += int(cuota.get("nuevoDebito", 0))
+            except (TypeError, ValueError):
+                pass  # si viene vacío o no numérico, lo ignora
+
+        # 🔹 Actualizar cabecera de cuenta_asociado con monto_total
         cursor.execute("""
             UPDATE cuenta_asociado 
             SET idproducto = %s, 
-            descripcion=%s
-            
+                descripcion = %s,
+                monto_total = %s
             WHERE idcuentaasociado = %s
-        """, (producto, descripcion, id_cuenta))
+        """, (producto, descripcion, total_debitos, id_cuenta))
 
         # 🔹 Actualizar detalle de cuotas
         for cuota in cuotas:
