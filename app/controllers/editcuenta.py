@@ -614,8 +614,8 @@ def crear_cuenta():
             
             detalle_conc = f"Año:{anho} - {producto_nombre} - {c['nrocuota']}"
             cursor.execute("""
-                INSERT INTO cuenta_aso_detalle (cuenta_aso, nrocuota, fechavenc, debito, detalle, credito, activo, monto)
-                VALUES (%s, %s, %s, %s, %s, 0,1,0)
+                INSERT INTO cuenta_aso_detalle (cuenta_aso, nrocuota, fechavenc, debito, detalle, credito, activo, monto, ualta)
+                VALUES (%s, %s, %s, %s, %s, 0,1,0, 1)
             """, (idcuentaasociado, c["nrocuota"], c["fechavenc"], c["debito"], detalle_conc))
 
         con.commit()
