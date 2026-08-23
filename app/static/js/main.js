@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let cuotaCero = {
       nroCuota: 0,
-      monto: 400000,
+      monto: 450000,
       fechaVencimiento,
       descripcion: "Matrícula"
     };
@@ -171,16 +171,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Agregar el resto de las cuotas
     const fechasVencimiento = [
-      "28/02/2025",
-      "10/03/2025",
-      "10/04/2025",
-      "10/05/2025",
-      "10/06/2025",
-      "10/07/2025",
-      "10/08/2025",
-      "10/09/2025",
-      "10/10/2025",
-      "10/11/2025"
+      "28/02/2026",
+      "10/03/2026",
+      "10/04/2026",
+      "10/05/2026",
+      "10/06/2026",
+      "10/07/2026",
+      "10/08/2026",
+      "10/09/2026",
+      "10/10/2026",
+      "10/11/2026"
     ];
 
     const descripcionesCuotas = [

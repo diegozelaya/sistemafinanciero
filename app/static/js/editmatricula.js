@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cuotas.push({
                     iddetalle: debitoInput.dataset.id,
                     nuevaFecha: fechaInput.value,
-                    nuevoDebito: debitoInput.value
+                    nuevoDebito: parseInt(debitoInput.value)
                 });
             }
         });
