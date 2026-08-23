@@ -61,8 +61,8 @@ def registrar_matricula():
 
         # 🆕 Insertar nueva matrícula
         sql_matricula = """
-            INSERT INTO matricula (idclienteasociado, fecha, anolectivo, idgrado, cantidadcuotas, importetotal, falta, activo, contrato)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 1, %s)
+            INSERT INTO matricula (idclienteasociado, fecha, anolectivo, idgrado, cantidadcuotas, importetotal, falta, activo, contrato, idmoneda)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 1, %s, 1)
         """
         cursor.execute(sql_matricula, (idclienteasociado, fecha, año_lectivo, idgrado, cant_cuotas, importe_total, fecha_alta, contrato))
         idmatricula = cursor.lastrowid
