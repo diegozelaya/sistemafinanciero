@@ -3,6 +3,7 @@ from ..models import conexion
 from app.models.conexion import get_cursor
 import json
 import os
+from datetime import datetime
 
 
 
@@ -614,9 +615,9 @@ def crear_cuenta():
             
             detalle_conc = f"Año:{anho} - {producto_nombre} - {c['nrocuota']}"
             cursor.execute("""
-                INSERT INTO cuenta_aso_detalle (cuenta_aso, nrocuota, fechavenc, debito, detalle, credito, activo, monto, ualta)
-                VALUES (%s, %s, %s, %s, %s, 0,1,0, 1)
-            """, (idcuentaasociado, c["nrocuota"], c["fechavenc"], c["debito"], detalle_conc))
+                INSERT INTO cuenta_aso_detalle (cuenta_aso, nrocuota, fechavenc, debito, detalle, credito, activo, monto, ualta, falta)
+                VALUES (%s, %s, %s, %s, %s, 0,1,0, 1, %s)
+            """, (idcuentaasociado, c["nrocuota"], c["fechavenc"], c["debito"], detalle_conc,  datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
         con.commit()
         return jsonify({"success": True, "message": "Cuenta creada correctamente"})
