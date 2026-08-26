@@ -250,10 +250,10 @@ def guardar_venta():
             elif det['tipo'] == "Cuota":
                 
                     cursor.execute("""
-                        INSERT INTO ventadet (idventa, idmatriculadet,cantidad,  preciounitario, subtotal, ualta, falta, activo, descuento, descripcion)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO ventadet (idventa, idmatriculadet,cantidad,  preciounitario, subtotal, ualta, falta, activo, descuento, descripcion, porcent_iva)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (
-                        id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],1, datetime.datetime.now().date(), 1, det['descuento'],  det['descripcion'] 
+                        id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],1, datetime.datetime.now().date(), 1, det['descuento'],  det['descripcion'], 0 
                     ))
                      # Actualizar matriculadet: sumar al crédito lo pagado
                     cursor.execute("""
