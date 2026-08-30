@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="campo fecha">${fechaFormateada}</div>
             <div class="campo ruc">${encabezado.ruc || ''}</div>
             <div class="campo razon">${razon_social || ''}</div>
-            <div class="campo condicion">${encabezado.idcondpago === "1" ? 'Contado' : 'Crédito'}</div>
+            <div class="campo condicion"> 'Contado'</div>
 
             <table class="tabla-productos">
                 ${detalles.map(d => `
@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </table>
 
           <div class="importe-total">
-              <strong>Son: ${numeroALetras(encabezado.total_general)}</strong> 
+              <strong>${numeroALetras(encabezado.total_general)}</strong> 
               <span style="margin-left: 400px;">
               ${encabezado.total_general.toLocaleString()}
             </span>
