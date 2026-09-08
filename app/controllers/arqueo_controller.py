@@ -57,10 +57,10 @@ def generar_planilla():
     query_cobros = """
         SELECT 
             v.factura,
-            SUM(c.importeefectivo) AS efectivo,
-            SUM(c.importecheque) AS cheque,
-            SUM(c.importetransferencia) AS transferencia,
-            SUM(c.importedescuento) AS descuento
+            SUM(CAST(c.importeefectivo AS DECIMAL(15,2))) AS efectivo,
+            SUM(CAST(c.importecheque AS DECIMAL(15,2))) AS cheque,
+            SUM(CAST(c.importetransferencia AS DECIMAL(15,2))) AS transferencia,
+            SUM(CAST(c.importedescuento AS DECIMAL(15,2))) AS descuento
         FROM cobro c
         INNER JOIN venta v ON v.idventa = c.idventa
         WHERE c.fecha BETWEEN %s AND %s
