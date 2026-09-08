@@ -213,7 +213,7 @@ def guardar_venta():
             INSERT INTO venta (fecha, idcondpago, idcliente, idmoneda, factura, idtimbrado, falta, activo, ualta)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (encabezado['fecha'], encabezado['condicion'], encabezado['idcliente'], 
-             encabezado['moneda'], encabezado['factura'], encabezado['timbrado'], datetime.datetime.now().date(), 1, 1))
+             encabezado['moneda'], encabezado['factura'], encabezado['timbrado'], encabezado['fecha'], 1, 1))
         id_venta = cursor.lastrowid
 
         # Insertar en COBRO
@@ -230,7 +230,7 @@ def guardar_venta():
             encabezado['cheque'],
             encabezado['descuento_sueldo'],
             0,
-            datetime.datetime.now().date(),
+            encabezado['fecha'],
             1,
             1
 
