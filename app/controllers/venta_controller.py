@@ -244,7 +244,7 @@ def guardar_venta():
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
                 """, (
                     id_venta, det['id_producto'], det['monto'],  det['monto'], 0,1, 
-                    datetime.datetime.now().date(), 
+                     encabezado['fecha'], 
                     1, det['descuento'], encabezado['asociado'],1,  det['descripcion']
                 ))
             elif det['tipo'] == "Cuota":
@@ -253,7 +253,7 @@ def guardar_venta():
                         INSERT INTO ventadet (idventa, idmatriculadet,cantidad,  preciounitario, subtotal, ualta, falta, activo, descuento, descripcion, porcent_iva)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (
-                        id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],1, datetime.datetime.now().date(), 1, det['descuento'],  det['descripcion'], 0 
+                        id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],1,  encabezado['fecha'], 1, det['descuento'],  det['descripcion'], 0 
                     ))
                      # Actualizar matriculadet: sumar al crédito lo pagado
                     cursor.execute("""
@@ -288,7 +288,7 @@ def guardar_venta():
                     INSERT INTO ventadet (idventa, idcuentaasociado, cantidad, preciounitario, subtotal, ualta, falta, activo, descuento, descripcion, idproducto)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
-                    id_venta, det['id_cuenta'],1, det['monto'], det['monto'],1, datetime.datetime.now().date(), 1, det['descuento'],  det['descripcion'], idproducto 
+                    id_venta, det['id_cuenta'],1, det['monto'], det['monto'],1,  encabezado['fecha'], 1, det['descuento'],  det['descripcion'], idproducto 
                 ))
                 cursor.execute("""
                     UPDATE cuenta_aso_detalle
