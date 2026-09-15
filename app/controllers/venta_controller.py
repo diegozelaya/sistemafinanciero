@@ -197,111 +197,113 @@ def get_productos():
 
    
 def guardar_venta():
-    
     import datetime
+    from flask import request, jsonify
 
     datos = request.get_json()
     print("Datos recibidos:", datos)
 
     encabezado = datos['encabezado']
     detalles = datos['detalles']
-    print ("los detales son", detalles)
-    cursor,con = get_cursor()
+    print("Los detalles son:", detalles)
+
+    # Normalizar fecha
+    try:
+        fecha = datetime.datetime.strptime(encabezado['fecha'], "%Y-%m-%d").date()
+    except Exception:
+        # Si viene en otro formato, ajusta aquí
+        fecha = datetime.date.today()
+
+    cursor, con = get_cursor()
     try:
         # Insertar en VENTA
         cursor.execute("""
             INSERT INTO venta (fecha, idcondpago, idcliente, idmoneda, factura, idtimbrado, falta, activo, ualta)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (encabezado['fecha'], encabezado['condicion'], encabezado['idcliente'], 
-             encabezado['moneda'], encabezado['factura'], encabezado['timbrado'], encabezado['fecha'], 1, 1))
+        """, (fecha, encabezado['condicion'], encabezado['idcliente'],
+              encabezado['moneda'], encabezado['factura'], encabezado['timbrado'],
+              fecha, 1, 1))
         id_venta = cursor.lastrowid
 
         # Insertar en COBRO
         cursor.execute("""
             INSERT INTO cobro (idventa, fecha, idcliente, idmoneda, importeefectivo, importetransferencia, importecheque, importedescuento, importetarjeta, falta, ualta, activo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            id_venta,
-            encabezado['fecha'],
-            encabezado['idcliente'],
-            encabezado['moneda'],
-            encabezado['efectivo'],
-            encabezado['transferencia'],
-            encabezado['cheque'],
-            encabezado['descuento_sueldo'],
-            0,
-            encabezado['fecha'],
-            1,
-            1
-
+            id_venta, fecha, encabezado['idcliente'], encabezado['moneda'],
+            encabezado['efectivo'], encabezado['transferencia'],
+            encabezado['cheque'], encabezado['descuento_sueldo'],
+            0, fecha, 1, 1
         ))
 
         # Insertar en VENTADET
         for det in detalles:
             if det['tipo'] == "Producto":
                 cursor.execute("""
-                    INSERT INTO ventadet (idventa, idproducto, preciounitario, subtotal, porcent_iva, ualta, falta, activo, descuento, idclienteasociado,cantidad, descripcion)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
+                    INSERT INTO ventadet (idventa, idproducto, preciounitario, subtotal, porcent_iva, ualta, falta, activo, descuento, idclienteasociado, cantidad, descripcion)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
-                    id_venta, det['id_producto'], det['monto'],  det['monto'], 0,1, 
-                     encabezado['fecha'], 
-                    1, det['descuento'], encabezado['asociado'],1,  det['descripcion']
+                    id_venta, det['id_producto'], det['monto'], det['monto'],
+                    0, 1, fecha, 1, det['descuento'], encabezado['asociado'],
+                    1, det['descripcion']
                 ))
+
             elif det['tipo'] == "Cuota":
-                
-                    cursor.execute("""
-                        INSERT INTO ventadet (idventa, idmatriculadet,cantidad,  preciounitario, subtotal, ualta, falta, activo, descuento, descripcion, porcent_iva)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """, (
-                        id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],1,  encabezado['fecha'], 1, det['descuento'],  det['descripcion'], 0 
-                    ))
-                     # Actualizar matriculadet: sumar al crédito lo pagado
+                cursor.execute("""
+                    INSERT INTO ventadet (idventa, idmatriculadet, cantidad, preciounitario, subtotal, porcent_iva, ualta, falta, activo, descuento, descripcion)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    id_venta, det['id_matriculadet'], 1, det['monto'], det['monto'],
+                    0, 1, fecha, 1, det['descuento'], det['descripcion']
+                ))
+
+                # Actualizar matriculadet
+                cursor.execute("""
+                    UPDATE matriculadet
+                    SET credito = IFNULL(credito, 0) + %s
+                    WHERE idmatriculadet = %s
+                """, (det['monto'], det['id_matriculadet']))
+
+                if det['descuento'] > 0:
                     cursor.execute("""
                         UPDATE matriculadet
-                        SET credito = IFNULL(credito, 0) + %s
+                        SET debito = IFNULL(debito, 0) - %s
                         WHERE idmatriculadet = %s
-                    """, (det['monto'], det['id_matriculadet']))
-
-                    # Si hay descuento, restarlo al débito
-                    if det['descuento'] > 0:
-                        cursor.execute("""
-                            UPDATE matriculadet
-                            SET debito = IFNULL(debito, 0) - %s
-                            WHERE idmatriculadet = %s
-                        """, (det['descuento'], det['id_matriculadet']))
-
+                    """, (det['descuento'], det['id_matriculadet']))
 
             elif det['tipo'] == "Cuenta":
                 cursor.execute("""
-                    select cuenta_asociado.idproducto from  cuenta_asociado  inner join cuenta_aso_detalle ON 
-                    cuenta_asociado.idcuentaasociado=cuenta_aso_detalle.cuenta_aso WHERE
-                    cuenta_aso_detalle.idcuentaasodet=%s           
-                """,(det['id_cuenta'],))
-                producto=cursor.fetchone()                   
-                if producto:
-                    idproducto = producto[0]   # primer registro, primer campo
-                else:
-                    idproducto = None
-                
-                print("el id del producto es::::", idproducto)
+                    SELECT cuenta_asociado.idproducto
+                    FROM cuenta_asociado
+                    INNER JOIN cuenta_aso_detalle ON cuenta_asociado.idcuentaasociado = cuenta_aso_detalle.cuenta_aso
+                    WHERE cuenta_aso_detalle.idcuentaasodet = %s
+                """, (det['id_cuenta'],))
+                producto = cursor.fetchone()
+                idproducto = producto[0] if producto else None
+
                 cursor.execute("""
-                    INSERT INTO ventadet (idventa, idcuentaasociado, cantidad, preciounitario, subtotal, ualta, falta, activo, descuento, descripcion, idproducto)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO ventadet (idventa, idcuentaasociado, cantidad, preciounitario, subtotal, porcent_iva, ualta, falta, activo, descuento, descripcion, idproducto)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
-                    id_venta, det['id_cuenta'],1, det['monto'], det['monto'],1,  encabezado['fecha'], 1, det['descuento'],  det['descripcion'], idproducto 
+                    id_venta, det['id_cuenta'], 1, det['monto'], det['monto'],
+                    0, 1, fecha, 1, det['descuento'], det['descripcion'], idproducto
                 ))
+
                 cursor.execute("""
                     UPDATE cuenta_aso_detalle
                     SET credito = IFNULL(credito, 0) + %s
-                        WHERE idcuentaasodet = %s
-                    """, (det['monto'], det['id_cuenta']))
-
+                    WHERE idcuentaasodet = %s
+                """, (det['monto'], det['id_cuenta']))
 
         con.commit()
-        return jsonify({"success": True, "id_venta":id_venta})
+        return jsonify({"success": True, "id_venta": id_venta})
+
     except Exception as e:
         con.rollback()
+        print("Error al guardar venta:", e)  # Log en servidor
         return jsonify({"success": False, "error": str(e)})
+
+
     
     
 
