@@ -344,13 +344,15 @@ def editar_factura(venta_id):
         # Actualizar tabla cobro
         cur.execute("""
             UPDATE cobro
-            SET importeefectivo = %s,
+            SET fecha=%s,
+                importeefectivo = %s,
                 importetransferencia = %s,
                 importecheque = %s,
                 importedescuento = %s,
                 importetarjeta=%s
             WHERE idventa = %s
         """, (
+            fecha,
             pago_efectivo,
             pago_transferencia,
             pago_cheque,
