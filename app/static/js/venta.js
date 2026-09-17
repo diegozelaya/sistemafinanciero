@@ -1394,29 +1394,29 @@ document.addEventListener("DOMContentLoaded", function () {
     //Carga los productos en el select para la venta
     function cargarProductosSelect() {
         const select = document.getElementById('selectProducto');
+        const valorSeleccionado = select.value; // guardar selección actual
 
         fetch('/get_productos')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     select.innerHTML = '<option value="">Seleccione un producto</option>';
-                    console.log(data.productos);
                     data.productos.forEach(producto => {
                         const option = document.createElement('option');
                         option.value = producto.id;
                         option.textContent = producto.nombre;
                         select.appendChild(option);
                     });
-                } else {
-                    console.error("Error al cargar productos:", data.error);
-                    alert("Error al cargar productos. Revisa la consola.");
+
+                    // restaurar selección si todavía existe
+                    if (valorSeleccionado) {
+                        select.value = valorSeleccionado;
+                    }
                 }
             })
-            .catch(error => {
-                console.error("Error en la petición:", error);
-                alert("Error en la conexión con el servidor.");
-            });
+            .catch(error => console.error("Error en la petición:", error));
     }
+
     function obtenerDetalleVenta() {
         const filas = document.querySelectorAll("#productTable tbody tr");
         let detalles = [];
@@ -1644,7 +1644,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (num === 0) return "cero guaraníes";
         if (num === 100.000) return "cien mil";
-        
+
 
         let letras = "";
 
