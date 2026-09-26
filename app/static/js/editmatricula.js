@@ -333,61 +333,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function imprimirFactura(datosVenta) {
         const { encabezado, detalles } = datosVenta;
-        console.log("Encabezado", encabezado);
-        console.log("Detalles", detalles);
-        // formateo de fecha
-        const fecha = new Date(encabezado.fecha); // Maneja bien ese formato
-        const dia = fecha.getDate().toString().padStart(2, '0');
-        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // +1 porque los meses van de 0 a 11
-        const año = fecha.getFullYear();
-        const fechaFormateada = `${dia}/${mes}/${año}`;
-        console.log("Fecha formateada:", fechaFormateada);
+        const fechaOriginal = encabezado.fecha.replaceAll("-", "/");
+        const partes = fechaOriginal.split("/");
+        const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
 
-        let razon_social = encabezado.nombre;
+        razon_social = extraerNombreCompleto(encabezado.razon);
 
+        // Agrupar detalles por descripción y sumar montos
+        const agrupados = {};
+        detalles.forEach(d => {
+            const desc = extraerNombreCompleto(d.descripcion);
+            if (!agrupados[desc]) {
+                agrupados[desc] = { monto: 0 };
+            }
+            agrupados[desc].monto += d.monto;
+        });
+
+        // Convertir a array para imprimir (cantidad siempre 1)
+        const detallesUnicos = Object.entries(agrupados).map(([desc, datos]) => ({
+            descripcion: desc,
+            cantidad: 1, // siempre uno
+            monto: datos.monto
+        }));
 
         let html = `
     <html>
     <head>
         <style>
+            @page { margin: 0; }
             body {
-                font-family: Arial, sans-serif;
+                font-family: "Times New Roman", serif;
                 margin: 0;
                 padding: 0;
                 font-size: 16px;
             }
             .contenedor {
                 position: relative;
-                width: 21cm;
-                height: 14.8cm;
+                width: 15cm;
+                height: 22cm;
                 padding: 0.5cm;
+                top: 1cm;
             }
-            .campo {
-                position: absolute;
-                font-size: 16px;
-            }
-            .fecha { top: 3.9cm; left: 3.5cm; }          /* antes estaba en 2.4cm + 1.5cm */
-            .ruc { top: 5cm; left: 3.5cm; }            /* 0.5cm debajo de fecha */
-            .razon { top: 5.5cm; left: 4.2cm; }          /* 0.5cm debajo del RUC */
-
-            .condicion { top: 3.9cm; left: 17.5cm; }     /* acompaña a la fecha */
+            .campo { position: absolute; font-size: 16px; }
+            .fecha { top: 3.4cm; left: 3.5cm; }
+            .ruc { top: 4cm; left: 3.5cm; }
+            .razon { top: 4.5cm; left: 5.2cm; }
+            .condicion { top: 3.9cm; left: 17.5cm; }
 
             .tabla-productos {
                 position: absolute;
-                top: 8.2cm; /* antes estaba en 5.2cm + 2.5cm */
-                left: 1cm;
+                top: 6.2cm;
+                left: -0.5cm;
                 width: 19cm;
                 font-size: 16px;
             }
+            .tabla-productos td { padding: 0.2cm; font-size: 16px; }
+
+            /* Ajustes */
+            .tabla-productos td:nth-child(1) { text-align: center; padding-left: 1cm; }
+            .tabla-productos td:nth-child(3) { text-align: right; margin-left: -1.5cm; }
+            .tabla-productos td:nth-child(4) { text-align: right; margin-left: -4.5cm; }
 
             .importe-total {
                 position: absolute;
-                top: 13.6cm; /* antes 12.1cm + 1.5cm */
-                left: 1.5cm;
+                top: 11.5cm;
+                left: 4.5cm;
                 width: 18cm;
                 font-weight: bold;
+                font-size: 16px;
             }
-
         </style>
     </head>
     <body onload="window.print(); setTimeout(() => window.close(), 500);">
@@ -395,28 +409,24 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="campo fecha">${fechaFormateada}</div>
             <div class="campo ruc">${encabezado.ruc || ''}</div>
             <div class="campo razon">${razon_social || ''}</div>
-            <div class="campo condicion">${encabezado.idcondpago === "1" ? 'Contado' : 'Crédito'}</div>
+            <div class="campo condicion">${encabezado.condicion === "1" ? 'Contado' : 'Crédito'}</div>
 
             <table class="tabla-productos">
-                ${detalles.map(d => `
+                ${detallesUnicos.map(d => `
                     <tr>
-                        <td style="width: 2cm;">1</td>
-                        <td style="width: 8cm;">${extraerNombreCompleto(d.descripcion)}</td>
-                        <td style="width: 2.5cm; text-align:center;">${d.subtotal.toLocaleString()}</td>
-                        <td style="width: 2.5cm; text-align:center;">${d.subtotal.toLocaleString()}</td>
+                        <td style="width: 2cm;">${d.cantidad}</td>
+                        <td style="width: 8cm;">${d.descripcion}</td>
+                        <td style="width: 2.5cm;">${d.monto.toLocaleString()}</td>
+                        <td style="width: 2.5cm;">${d.monto.toLocaleString()}</td>
                     </tr>
                 `).join('')}
             </table>
 
-          <div class="importe-total">
-              <strong>Son: ${numeroALetras(encabezado.total_general)}</strong> 
-              <span style="margin-left: 400px;">
-              ${encabezado.total_general.toLocaleString()}
-            </span>
-           </div>
-
+            <div class="importe-total">
+                <strong>${numeroALetras(encabezado.totalGeneral)}</strong>
+                <span style="margin-left: 400px;">${encabezado.totalGeneral.toLocaleString()}</span>
+            </div>
         </div>
-        
     </body>
     </html>
     `;
