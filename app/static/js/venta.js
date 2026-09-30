@@ -1395,22 +1395,27 @@ document.addEventListener("DOMContentLoaded", function () {
     //Carga los productos en el select para la venta
    function cargarProductosSelect() {
     const select = document.getElementById('selectProducto');
-    const valorSeleccionado = select.value; // guardar selección actual
+    const valorSeleccionado = String(select.value); // guardar selección actual
 
     fetch('/get_productos')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // limpiar solo las opciones dinámicas
+                // limpiar todas las opciones
                 select.innerHTML = '';
+
+                // opción inicial deshabilitada
                 const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = 'Seleccione un producto';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
                 select.appendChild(defaultOption);
 
+                // cargar productos
                 data.productos.forEach(producto => {
                     const option = document.createElement('option');
-                    option.value = String(producto.id); // asegurar tipo string
+                    option.value = String(producto.id);
                     option.textContent = producto.nombre;
                     select.appendChild(option);
                 });
@@ -1426,6 +1431,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error en la petición:", error));
 }
+
 
 
     function obtenerDetalleVenta() {
