@@ -1395,16 +1395,14 @@ document.addEventListener("DOMContentLoaded", function () {
     //Carga los productos en el select para la venta
    function cargarProductosSelect() {
     const select = document.getElementById('selectProducto');
-    const valorSeleccionado = String(select.value); // guardar selección actual
+    const valorSeleccionado = String(select.value);
 
-    fetch('/get_productos')
+    fetch('/get_productos?nocache=' + Date.now(), { cache: 'no-store' })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // limpiar todas las opciones
                 select.innerHTML = '';
 
-                // opción inicial deshabilitada
                 const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = 'Seleccione un producto';
@@ -1412,7 +1410,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 defaultOption.selected = true;
                 select.appendChild(defaultOption);
 
-                // cargar productos
                 data.productos.forEach(producto => {
                     const option = document.createElement('option');
                     option.value = String(producto.id);
@@ -1420,7 +1417,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     select.appendChild(option);
                 });
 
-                // restaurar selección si existe
                 if (valorSeleccionado) {
                     const opcion = select.querySelector(`option[value="${valorSeleccionado}"]`);
                     if (opcion) {
@@ -1431,6 +1427,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error en la petición:", error));
 }
+
 
 
 
