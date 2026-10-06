@@ -182,51 +182,43 @@ document.addEventListener("DOMContentLoaded", function () {
                     $("#selectpagos").find("input, select, textarea, button").prop("disabled", false);
                     let nuevoSeleccionado = $(this).val();
                     console.log("El nuevo seleccionado es:", nuevoSeleccionado);
+
                     if (!nuevoSeleccionado) {
                         $("#cuotasTable tbody").html("<tr><td colspan='4'>Seleccione un asociado.</td></tr>");
                         $("#cuentasTable tbody").html("<tr><td colspan='4'>Seleccione un asociado.</td></tr>");
-
                         return;
                     }
 
+                    // Mensaje inicial de carga
                     $("#cuotasTable tbody").html("<tr><td colspan='4'>Cargando cuotas...</td></tr>");
+                    $("#cuentasTable tbody").html("<tr><td colspan='4'>Cargando cuentas...</td></tr>");
 
+                    // Limpieza de selección previa
                     const tablaSeleccion = document.querySelector("#tablaCuentasSeleccion tbody");
                     if (tablaSeleccion) {
-                        tablaSeleccion.innerHTML = "";  // limpia todas las filas
+                        tablaSeleccion.innerHTML = "";
                     }
 
-                    // También podrías ocultar el contenedor, si lo tenés
                     const contenedorSeleccion = document.getElementById("contenedorCuentasSeleccion");
                     if (contenedorSeleccion) {
-                        contenedorSeleccion.classList.add("d-none"); // o tu clase personalizada
+                        contenedorSeleccion.classList.add("d-none");
                     }
 
+                    // Cargar cuotas
                     await obtenerCuotasPendientes(nuevoSeleccionado);
 
                     cargarCuotas(nuevoSeleccionado)
-                        .then(success => {
-                            if (!success) {
-                                $("#cuotasTable tbody").html("<tr><td colspan='4'>No hay cuotas disponibles.</td></tr>");
-                            }
-                        })
                         .catch(() => {
                             $("#cuotasTable tbody").html("<tr><td colspan='4'>Error al cargar cuotas.</td></tr>");
                         });
 
-                    cargarCuentas(nuevoSeleccionado)
-                        .then(success => {
-                            if (!success) {
-                                $("#cuentasTable tbody").html("<tr><td colspan='4'>No hay cuentas disponibles.</td></tr>");
-                            }
-                        })
-                        .catch(() => {
-                            $("#cuentasTable tbody").html("<tr><td colspan='4'>Error al cargar cuentas.</td></tr>");
-                        });
+                    // Cargar cuentas (solo esta función maneja vacío/error)
+                    cargarCuentas(nuevoSeleccionado);
 
+                    // Preparar modal
                     prepararModal(nuevoSeleccionado);
-
                 });
+
 
 
 
@@ -1393,40 +1385,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     //Carga los productos en el select para la venta
-   function cargarProductosSelect() {
-    const select = document.getElementById('selectProducto');
-    const valorSeleccionado = String(select.value);
+    function cargarProductosSelect() {
+        const select = document.getElementById('selectProducto');
+        const valorSeleccionado = String(select.value);
 
-    fetch('/get_productos?nocache=' + Date.now(), { cache: 'no-store' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                select.innerHTML = '';
+        fetch('/get_productos?nocache=' + Date.now(), { cache: 'no-store' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    select.innerHTML = '';
 
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Seleccione un producto';
-                defaultOption.disabled = true;
-                defaultOption.selected = true;
-                select.appendChild(defaultOption);
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Seleccione un producto';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    select.appendChild(defaultOption);
 
-                data.productos.forEach(producto => {
-                    const option = document.createElement('option');
-                    option.value = String(producto.id);
-                    option.textContent = producto.nombre;
-                    select.appendChild(option);
-                });
+                    data.productos.forEach(producto => {
+                        const option = document.createElement('option');
+                        option.value = String(producto.id);
+                        option.textContent = producto.nombre;
+                        select.appendChild(option);
+                    });
 
-                if (valorSeleccionado) {
-                    const opcion = select.querySelector(`option[value="${valorSeleccionado}"]`);
-                    if (opcion) {
-                        opcion.selected = true;
+                    if (valorSeleccionado) {
+                        const opcion = select.querySelector(`option[value="${valorSeleccionado}"]`);
+                        if (opcion) {
+                            opcion.selected = true;
+                        }
                     }
                 }
-            }
-        })
-        .catch(error => console.error("Error en la petición:", error));
-}
+            })
+            .catch(error => console.error("Error en la petición:", error));
+    }
 
 
 
@@ -1528,31 +1520,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function imprimirFactura(datosVenta) {
-    const { encabezado, detalles } = datosVenta;
-    const fechaOriginal = encabezado.fecha.replaceAll("-", "/");
-    const partes = fechaOriginal.split("/");
-    const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        const { encabezado, detalles } = datosVenta;
+        const fechaOriginal = encabezado.fecha.replaceAll("-", "/");
+        const partes = fechaOriginal.split("/");
+        const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
 
-    razon_social = extraerNombreCompleto(encabezado.razon);
+        razon_social = extraerNombreCompleto(encabezado.razon);
 
-    // Agrupar detalles por descripción y sumar montos
-    const agrupados = {};
-    detalles.forEach(d => {
-        const desc = extraerNombreCompleto(d.descripcion);
-        if (!agrupados[desc]) {
-            agrupados[desc] = { monto: 0 };
-        }
-        agrupados[desc].monto += d.monto;
-    });
+        // Agrupar detalles por descripción y sumar montos
+        const agrupados = {};
+        detalles.forEach(d => {
+            const desc = extraerNombreCompleto(d.descripcion);
+            if (!agrupados[desc]) {
+                agrupados[desc] = { monto: 0 };
+            }
+            agrupados[desc].monto += d.monto;
+        });
 
-    // Convertir a array para imprimir (cantidad siempre 1)
-    const detallesUnicos = Object.entries(agrupados).map(([desc, datos]) => ({
-        descripcion: desc,
-        cantidad: 1, // siempre uno
-        monto: datos.monto
-    }));
+        // Convertir a array para imprimir (cantidad siempre 1)
+        const detallesUnicos = Object.entries(agrupados).map(([desc, datos]) => ({
+            descripcion: desc,
+            cantidad: 1, // siempre uno
+            monto: datos.monto
+        }));
 
-    let html = `
+        let html = `
     <html>
     <head>
         <style>
@@ -1627,10 +1619,10 @@ document.addEventListener("DOMContentLoaded", function () {
     </html>
     `;
 
-    let win = window.open("", "Impresión", "width=800,height=600");
-    win.document.write(html);
-    win.document.close();
-}
+        let win = window.open("", "Impresión", "width=800,height=600");
+        win.document.write(html);
+        win.document.close();
+    }
 
 
 
