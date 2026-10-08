@@ -98,6 +98,83 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ------------------ codigo para el modal
 
+    // Tokens de control para evitar escrituras cruzadas
+    let ultimaCargaCuentas = null;
+    let ultimaCargaCuotas = null;
+
+    async function cargarCuentas(idAsociado) {
+        const cargaId = Date.now();
+        ultimaCargaCuentas = cargaId;
+
+        console.log("🔄 Cargando cuentas para ID:", idAsociado);
+        let tbody = document.querySelector("#cuentasTable tbody");
+        tbody.innerHTML = "<tr><td colspan='4'>Cargando cuentas...</td></tr>";
+
+        try {
+            const response = await fetch(`/obtener_cuentas/${idAsociado}`);
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            const data = await response.json();
+
+            if (ultimaCargaCuentas !== cargaId) return false;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4'>No hay cuentas pendientes</td></tr>";
+                return false;
+            }
+
+            console.log("🔍 Cuentas recibidas:", data);
+            let filas = data.map(cuenta => {
+                let fecha = new Date(cuenta.fechavenc).toISOString().split("T")[0];
+                return `
+                <tr data-id="${cuenta.idcuentaasodet}">
+                     <td class="col-pequena">${cuenta.anolectivo}</td>
+                     <td class="col-pequena">${formatNumber(cuenta.monto)}</td>
+                     <td class="col-pequena">${fecha}</td>
+                     <td class="col-pequena">${cuenta.detalle}</td>
+                </tr>
+            `;
+            }).join("");
+
+            tbody.innerHTML = filas;
+            return true;
+        } catch (error) {
+            console.error("❌ Error al obtener cuentas:", error);
+            if (ultimaCargaCuentas === cargaId) {
+                tbody.innerHTML = "<tr><td colspan='4'>⚠ Error al cargar cuentas.</td></tr>";
+            }
+            return false;
+        }
+    }
+
+    async function cargarCuotas(idAsociado) {
+        console.log("🔄 Cargando cuotas para ID:", idAsociado);
+        const tbody = document.querySelector('#cuotasTable tbody');
+        tbody.innerHTML = '';
+
+        if (cuotasPendientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">No hay cuotas disponibles</td></tr>';
+            return false;
+        } else {
+            console.log("📋 Contenido de cuotasPendientes:", cuotasPendientes);
+
+            cuotasPendientes.forEach(cuota => {
+                let fechavenc = new Date(cuota.fecha_vencimiento).toISOString().split("T")[0]; // ✅ Formateo correcto
+
+                let fila = `
+       <tr data-id="${cuota.id}">
+        <td>${cuota.nro_cuota}</td>
+        <td>${cuota.nombre_cuota}</td>
+        <td>${fechavenc}</td>
+        <td>${cuota.monto}</td>
+      </tr>`;
+                tbody.innerHTML += fila;
+            });
+
+            return true;
+        }
+
+    }
+
     document.addEventListener("click", async function (event) {
         if (event.target && event.target.id === "btnCuotas") {
             let seleccionado = $("#asociado").val();
@@ -109,30 +186,27 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             console.log("📥 Obteniendo cuotas pendientes para:", seleccionado);
-
             await obtenerCuotasPendientes(seleccionado);
-
-            // Ahora sí, preparar modal
-            await prepararModal(seleccionado); // ⬅ importante que sea await también
-
+            await prepararModal(seleccionado);
 
             let modalElement = document.getElementById("modalCuotas");
             let modalInstance = new bootstrap.Modal(modalElement);
             modalInstance.show();
 
-            // Al mostrar el modal
-            $("#modalCuotas").one("shown.bs.modal", function () {
+            // 🔁 Importante: usar .off + .on para que siempre se ejecute
+            $("#modalCuotas").off("shown.bs.modal").on("shown.bs.modal", function () {
                 $("#contenedorOpcionesPago").empty();
                 $("#descuentos").empty();
+
                 if ($.fn.select2 && $("#asociadomod").hasClass("select2-hidden-accessible")) {
                     $("#asociadomod").select2("destroy");
                 }
 
                 $("#asociadomod").empty();
-
                 let newOption = new Option(textoAsociado, seleccionado, true, true);
-                $("#asociadomod").append(newOption).trigger("change");
+                $("#asociadomod").append(newOption);
 
+                // Inicializar select2
                 $("#asociadomod").select2({
                     placeholder: "Buscar asociado...",
                     allowClear: true,
@@ -142,154 +216,54 @@ document.addEventListener("DOMContentLoaded", function () {
                         url: "/buscar_asociado",
                         dataType: "json",
                         delay: 250,
-                        data: function (params) {
-                            return { q: params.term };
-                        },
-                        processResults: function (data) {
-                            return { results: data };
-                        },
+                        data: params => ({ q: params.term }),
+                        processResults: data => ({ results: data }),
                         cache: true
                     }
                 });
-                $("#asociadomod").on("select2:opening", function (e) {
-                    // Reemplaza '#miDiv' con el ID real de tu div
-                    $("#selectpagos").find("input, select, textarea, button").prop("disabled", true);
-                    let footcuotas = document.querySelector("#botonescuotascompletas");
-                    footcuotas.innerHTML = ``
-                    $("#contenedorOpcionesPago").empty();
-                    $("#descuentos").empty();
+
+                // Primera carga explícita
+                cargarCuotas(seleccionado).catch(() => {
+                    $("#cuotasTable tbody").html("<tr><td colspan='4'>Error al cargar cuotas.</td></tr>");
                 });
 
-                let tbody = document.querySelector("#cuotasTable tbody");
-                tbody.innerHTML = "<tr><td colspan='4'>Cargando cuotas...</td></tr>";
-
-                cargarCuotas(seleccionado)
-                    .then(success => {
-                        if (!success) {
-                            tbody.innerHTML = "<tr><td colspan='4'>No hay cuotas disponibles.</td></tr>";
-                        }
-                    })
-                    .catch(() => {
-                        tbody.innerHTML = "<tr><td colspan='4'>Error al cargar cuotas.</td></tr>";
-                    });
-
-                // 🔁 Cargar cuentas
                 cargarCuentas(seleccionado);
 
-
-                // Si cambia el asociado desde el modal
-                $("#asociadomod").on("change", async function () {
-                    $("#selectpagos").find("input, select, textarea, button").prop("disabled", false);
+                // Listener de cambio
+                $("#asociadomod").off("change").on("change", async function () {
                     let nuevoSeleccionado = $(this).val();
-                    console.log("El nuevo seleccionado es:", nuevoSeleccionado);
-
                     if (!nuevoSeleccionado) {
                         $("#cuotasTable tbody").html("<tr><td colspan='4'>Seleccione un asociado.</td></tr>");
                         $("#cuentasTable tbody").html("<tr><td colspan='4'>Seleccione un asociado.</td></tr>");
                         return;
                     }
 
-                    // Mensaje inicial de carga
                     $("#cuotasTable tbody").html("<tr><td colspan='4'>Cargando cuotas...</td></tr>");
                     $("#cuentasTable tbody").html("<tr><td colspan='4'>Cargando cuentas...</td></tr>");
 
-                    // Limpieza de selección previa
-                    const tablaSeleccion = document.querySelector("#tablaCuentasSeleccion tbody");
-                    if (tablaSeleccion) {
-                        tablaSeleccion.innerHTML = "";
-                    }
-
-                    const contenedorSeleccion = document.getElementById("contenedorCuentasSeleccion");
-                    if (contenedorSeleccion) {
-                        contenedorSeleccion.classList.add("d-none");
-                    }
-
-                    // Cargar cuotas
                     await obtenerCuotasPendientes(nuevoSeleccionado);
 
-                    cargarCuotas(nuevoSeleccionado)
-                        .catch(() => {
-                            $("#cuotasTable tbody").html("<tr><td colspan='4'>Error al cargar cuotas.</td></tr>");
-                        });
+                    cargarCuotas(nuevoSeleccionado).catch(() => {
+                        $("#cuotasTable tbody").html("<tr><td colspan='4'>Error al cargar cuotas.</td></tr>");
+                    });
 
-                    // Cargar cuentas (solo esta función maneja vacío/error)
                     cargarCuentas(nuevoSeleccionado);
-
-                    // Preparar modal
                     prepararModal(nuevoSeleccionado);
                 });
-
-
-
-
-
-
             });
 
-
-
-            // 🧼 Limpiar todo al cerrar el modal
-            $("#modalCuotas").one("hidden.bs.modal", function () {
+            // Limpiar al cerrar
+            $("#modalCuotas").off("hidden.bs.modal").on("hidden.bs.modal", function () {
                 if ($.fn.select2 && $("#asociadomod").hasClass("select2-hidden-accessible")) {
                     $("#asociadomod").select2("destroy");
                 }
-
-                $("#asociadomod").empty(); // Limpiar select
-                $("#cuotasTable tbody").html(""); // Limpiar tabla
+                $("#asociadomod").empty();
+                $("#cuotasTable tbody").html("");
             });
         }
-
-        if (event.target && event.target.id === "btnProductos") {
-            //carga de productos
-            let seleccionado2 = $("#asociado").val();
-            //let textoAsociado = $("#asociado option:selected").text();
-
-            if (!seleccionado2) {
-                alert("⚠ Seleccione un asociado válido");
-                return;
-            }
-            let modalElement2 = document.getElementById("modalProductos");
-            let modalInstance2 = new bootstrap.Modal(modalElement2);
-            modalInstance2.show();
-
-            // Al mostrar el modal
-            $("#modalProductos").on("shown.bs.modal", function () {
-                cargarProductosSelect();
-                console.log("entro bien al modal productos");
-
-                $("#agregarProductoBtn").off("click").on("click", function () {
-                    agregarProductoVenta();
-                    console.log("entro al boton agregar productos");
-                    const modalElement = document.getElementById('modalProductos');
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    modal.hide();
-                });
-            });
-
-
-            document.getElementById('modalProductos').addEventListener('hidden.bs.modal', () => {
-                // Limpiar el select
-                const select = document.getElementById('selectProducto');
-                if (select) {
-                    select.innerHTML = '<option value="">Seleccione un producto</option>';
-                }
-
-                // Limpiar el input
-                const inputMonto = document.getElementById('montoProducto');
-                if (inputMonto) {
-                    inputMonto.value = '';
-                }
-
-                console.log("🧹 Modal limpiado al cerrar");
-            });
-
-
-
-
-        }
-
-
     });
+
+
 
     document.querySelector("#guardarventaBtn").addEventListener("click", function () {
         const datosVenta = obtenerDetalleVenta();
@@ -327,78 +301,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    async function cargarCuotas(idAsociado) {
-        console.log("🔄 Cargando cuotas para ID:", idAsociado);
-        const tbody = document.querySelector('#cuotasTable tbody');
-        tbody.innerHTML = '';
-
-        if (cuotasPendientes.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3">No hay cuotas disponibles</td></tr>';
-            return false;
-        } else {
-            console.log("📋 Contenido de cuotasPendientes:", cuotasPendientes);
-
-            cuotasPendientes.forEach(cuota => {
-                let fechavenc = new Date(cuota.fecha_vencimiento).toISOString().split("T")[0]; // ✅ Formateo correcto
-
-                let fila = `
-       <tr data-id="${cuota.id}">
-        <td>${cuota.nro_cuota}</td>
-        <td>${cuota.nombre_cuota}</td>
-        <td>${fechavenc}</td>
-        <td>${cuota.monto}</td>
-      </tr>`;
-                tbody.innerHTML += fila;
-            });
-
-            return true;
-        }
-
-    }
 
 
 
 
-    async function cargarCuentas(idAsociado) {
-        console.log("🔄 Cargando cuentas para ID:", idAsociado);
-        let tbody = document.querySelector("#cuentasTable tbody");
-        tbody.innerHTML = "";
-        return fetch(`/obtener_cuentas/${idAsociado}`)
-            .then(response => {
-                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
 
 
-                if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='4'>No hay cuentas pendientes</td></tr>";
-                    return false;
-                }
-                console.log("🔍 Cuentas recibidas:", data);
-                let filas = data.map(cuenta => {
-                    let fecha = new Date(cuenta.fechavenc).toISOString().split("T")[0]; // ✅ Formateo correcto
-                    return `
-                        <tr data-id="${cuenta.idcuentaasodet}">
-                             <td class="col-pequena">${cuenta.anolectivo}</td>
-                             
-                             <td class="col-pequena">${formatNumber(cuenta.monto)}</td>
-                              <td class="col-pequena">${fecha}</td>
-                              <td class="col-pequena">${cuenta.detalle}</td>
-                        </tr>
-                    `;
-                }).join("");
-
-                tbody.innerHTML = filas;
-                return true;
-            })
-            .catch(error => {
-                console.error("❌ Error al obtener cuentas:", error);
-                document.querySelector("#cuentasTable tbody").innerHTML =
-                    "<tr><td colspan='4'>⚠ Error al cargar cuentas.</td></tr>";
-                return false;
-            });
-    }
 
 
 
