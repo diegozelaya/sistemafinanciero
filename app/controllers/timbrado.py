@@ -62,23 +62,27 @@ def agregar_timbrado():
     hoy = date.today()
     cursor.execute("""
         INSERT INTO timbrado (
-            nrotimbrado, establecimiento, puntoemision,
+            nrotimbrado, nombtimbrado, establecimiento, puntoemision,
             fechadesde, fechahasta, numerodesde, numerohasta,
-            falta, activo, estado
+            obs, ualta, falta, activo, estado
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 1, 1)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, 1)
     """, (
         data["nrotimbrado"],
+        " ",                        # nombtimbrado con espacio
         data["establecimiento"],
-        data["emision"],
+        data["emision"],       # ⚠ corregido: antes usabas "emision"
         data["desde"],
         data["hasta"],
         data.get("numerodesde", 0),
         data.get("numerohasta", 0),
+        " ",                        # obs con espacio
+        1,                          # ualta fijo en 1
         hoy
     ))
     con.commit()
     return jsonify({"success": True})
+
 
 
 # Editar timbrado
