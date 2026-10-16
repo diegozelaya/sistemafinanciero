@@ -261,6 +261,57 @@ document.addEventListener("DOMContentLoaded", function () {
                 $("#cuotasTable tbody").html("");
             });
         }
+
+        if (event.target && event.target.id === "btnProductos") {
+            //carga de productos
+            let seleccionado2 = $("#asociado").val();
+            //let textoAsociado = $("#asociado option:selected").text();
+
+            if (!seleccionado2) {
+                alert("⚠ Seleccione un asociado válido");
+                return;
+            }
+            let modalElement2 = document.getElementById("modalProductos");
+            let modalInstance2 = new bootstrap.Modal(modalElement2);
+            modalInstance2.show();
+
+            // Al mostrar el modal
+            $("#modalProductos").on("shown.bs.modal", function () {
+                cargarProductosSelect();
+                console.log("entro bien al modal productos");
+
+                $("#agregarProductoBtn").off("click").on("click", function () {
+                    agregarProductoVenta();
+                    console.log("entro al boton agregar productos");
+                    const modalElement = document.getElementById('modalProductos');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    modal.hide();
+                });
+            });
+
+
+            document.getElementById('modalProductos').addEventListener('hidden.bs.modal', () => {
+                // Limpiar el select
+                const select = document.getElementById('selectProducto');
+                if (select) {
+                    select.innerHTML = '<option value="">Seleccione un producto</option>';
+                }
+
+                // Limpiar el input
+                const inputMonto = document.getElementById('montoProducto');
+                if (inputMonto) {
+                    inputMonto.value = '';
+                }
+
+                console.log("🧹 Modal limpiado al cerrar");
+            });
+
+
+
+
+        }
+
+
     });
 
 
